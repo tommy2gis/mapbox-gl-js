@@ -369,7 +369,7 @@ class Map extends Camera {
 
         const transform = new Transform(options.minZoom, options.maxZoom, options.minPitch, options.maxPitch, options.renderWorldCopies, options.crs);
         super(transform, options);
-
+        this.crs = options.crs;
         this._interactive = options.interactive;
         this._maxTileCacheSize = options.maxTileCacheSize;
         this._failIfMajorPerformanceCaveat = options.failIfMajorPerformanceCaveat;
