@@ -1,6 +1,6 @@
 // @flow
 
-import {getTileBBox} from '@cgcs2000/whoots-js';
+import {getTileBBox} from '@shitao1988/swsk-whoots-js';
 import EXTENT from '../data/extent';
 import Point from '@mapbox/point-geometry';
 import MercatorCoordinate from '../geo/mercator_coordinate';
@@ -30,7 +30,7 @@ export class CanonicalTileID {
 
     // given a list of urls, choose a url template and return a tile URL
     url(urls: Array<string>, scheme: ?string, zoomOffset: ?number) {
-        const bbox = getTileBBox(this.x, this.y, this.z);
+        const bbox = getTileBBox(this.x, this.y, this.z,'EPSG:4490');
         const quadkey = getQuadkey(this.z, this.x, this.y);
 
         return urls[(this.x + this.y) % urls.length]

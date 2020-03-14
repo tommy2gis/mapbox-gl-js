@@ -115,6 +115,7 @@ class GeoJSONSource extends Evented implements Source {
         if (options.maxzoom !== undefined) this.maxzoom = options.maxzoom;
         if (options.type) this.type = options.type;
         if (options.attribution) this.attribution = options.attribution;
+        if (options.crs) this.crs = options.crs;
         this.promoteId = options.promoteId;
 
         const scale = EXTENT / this.tileSize;
@@ -127,6 +128,7 @@ class GeoJSONSource extends Evented implements Source {
             source: this.id,
             cluster: options.cluster || false,
             geojsonVtOptions: {
+                crs:this.crs||'EPSG:3857',
                 buffer: (options.buffer !== undefined ? options.buffer : 128) * scale,
                 tolerance: (options.tolerance !== undefined ? options.tolerance : 0.375) * scale,
                 extent: EXTENT,
