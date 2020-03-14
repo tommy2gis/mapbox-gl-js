@@ -32,8 +32,13 @@ export function lngFromMercatorX(x: number) {
     return x * 360 - 180;
 }
 
-export function latFromMercatorY(y: number) {
+export function latFromMercator2000Y(y: number) {
     return clamp(90 - y * 360, -90, 90);
+}
+
+export function latFromMercatorY(y: number) {
+    const y2 = 180 - y * 360;
+    return 360 / Math.PI * Math.atan(Math.exp(y2 * Math.PI / 180)) - 90;
 }
 
 export function altitudeFromMercatorZ(z: number, y: number) {
@@ -114,10 +119,10 @@ class MercatorCoordinate {
      * var coord = new mapboxgl.MercatorCoordinate(0.5, 0.5, 0);
      * var latLng = coord.toLngLat(); // LngLat(0, 0)
      */
-    toLngLat() {
+    toLngLat(crs) {
         return new LngLat(
                 lngFromMercatorX(this.x),
-                latFromMercatorY(this.y));
+                crs==='EPSG:4490'?latFromMercator2000Y(this.y):latFromMercatorY(this.y));
     }
 
     /**

@@ -53,13 +53,15 @@ class Transform {
     _posMatrixCache: {[string]: Float32Array};
     _alignedPosMatrixCache: {[string]: Float32Array};
 
-    constructor(minZoom: ?number, maxZoom: ?number, minPitch: ?number, maxPitch: ?number, renderWorldCopies: boolean | void) {
+    constructor(minZoom: ?number, maxZoom: ?number, minPitch: ?number, maxPitch: ?number, renderWorldCopies: boolean | void,crs: ?string) {
         this.tileSize = 512; // constant
-        this.maxValidLatitude = 90; // constant
-
+        this._crs = crs || 'EPSG:3857';
+        this.maxValidLatitude = this._crs==='EPSG:4490'?90:85.051129;
+        
         this._renderWorldCopies = renderWorldCopies === undefined ? true : renderWorldCopies;
         this._minZoom = minZoom || 0;
         this._maxZoom = maxZoom || 22;
+        
 
         this._minPitch = (minPitch === undefined || minPitch === null) ? 0 : minPitch;
         this._maxPitch = (maxPitch === undefined || maxPitch === null) ? 60 : maxPitch;
@@ -386,7 +388,7 @@ class Transform {
     }
 
     unproject(point: Point): LngLat {
-        return new MercatorCoordinate(point.x / this.worldSize, point.y / this.worldSize).toLngLat();
+        return new MercatorCoordinate(point.x / this.worldSize, point.y / this.worldSize).toLngLat(this._crs);
     }
 
     get point(): Point { return this.project(this.center); }
@@ -438,7 +440,7 @@ class Transform {
      * @returns {LngLat} lnglat
      */
     coordinateLocation(coord: MercatorCoordinate) {
-        return coord.toLngLat();
+        return coord.toLngLat(this._crs);
     }
 
     pointCoordinate(p: Point) {
