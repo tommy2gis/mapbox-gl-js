@@ -8,6 +8,8 @@ export type FormattedSpecification = string;
 
 export type ResolvedImageSpecification = string;
 
+export type PromoteIdSpecification = {[string]: string} | string;
+
 export type FilterSpecification =
     | ['has', string]
     | ['!has', string]
@@ -87,6 +89,7 @@ export type VectorSourceSpecification = {
     "minzoom"?: number,
     "maxzoom"?: number,
     "attribution"?: string,
+    "promoteId"?: PromoteIdSpecification,
     "zoomOffset"?: number
 }
 
@@ -128,7 +131,8 @@ export type GeoJSONSourceSpecification = {|
     "clusterMaxZoom"?: number,
     "clusterProperties"?: mixed,
     "lineMetrics"?: boolean,
-    "generateId"?: boolean
+    "generateId"?: boolean,
+    "promoteId"?: PromoteIdSpecification
 |}
 
 export type VideoSourceSpecification = {|

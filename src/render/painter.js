@@ -22,7 +22,6 @@ import StencilMode from '../gl/stencil_mode';
 import ColorMode from '../gl/color_mode';
 import CullFaceMode from '../gl/cull_face_mode';
 import Texture from './texture';
-import updateTileMasks from './tile_mask';
 import {clippingMaskUniformValues} from './program/clipping_mask_program';
 import Color from '../style-spec/util/color';
 import symbol from './draw_symbol';
@@ -104,7 +103,7 @@ class Painter {
     viewportSegments: SegmentVector;
     quadTriangleIndexBuffer: IndexBuffer;
     tileBorderIndexBuffer: IndexBuffer;
-    _tileClippingMaskIDs: { [number]: number };
+    _tileClippingMaskIDs: { [string]: number };
     stencilClearMode: StencilMode;
     style: Style;
     options: PainterOptions;
@@ -137,8 +136,6 @@ class Painter {
         this.depthEpsilon = 1 / Math.pow(2, 16);
 
         this.depthRboNeedsClear = true;
-
-        this.emptyProgramConfiguration = new ProgramConfiguration();
 
         this.crossTileSymbolIndex = new CrossTileSymbolIndex();
 
@@ -296,6 +293,36 @@ class Painter {
         return new StencilMode({func: gl.EQUAL, mask: 0xFF}, this._tileClippingMaskIDs[tileID.key], 0x00, gl.KEEP, gl.KEEP, gl.REPLACE);
     }
 
+    /*
+     * Sort coordinates by Z as drawing tiles is done in Z-descending order.
+     * All children with the same Z write the same stencil value.  Children
+     * stencil values are greater than parent's.  This is used only for raster
+     * and raster-dem tiles, which are already clipped to tile boundaries, to
+     * mask area of tile overlapped by children tiles.
+     * Stencil ref values continue range used in _tileClippingMaskIDs.
+     *
+     * Returns [StencilMode for tile overscaleZ map, sortedCoords].
+     */
+    stencilConfigForOverlap(tileIDs: Array<OverscaledTileID>): [{[number]: $ReadOnly<StencilMode>}, Array<OverscaledTileID>] {
+        const gl = this.context.gl;
+        const coords = tileIDs.sort((a, b) => b.overscaledZ - a.overscaledZ);
+        const minTileZ = coords[coords.length - 1].overscaledZ;
+        const stencilValues = coords[0].overscaledZ - minTileZ + 1;
+        if (stencilValues > 1) {
+            this.currentStencilSource = undefined;
+            if (this.nextStencilID + stencilValues > 256) {
+                this.clearStencil();
+            }
+            const zToStencilMode = {};
+            for (let i = 0; i < stencilValues; i++) {
+                zToStencilMode[i + minTileZ] = new StencilMode({func: gl.GEQUAL, mask: 0xFF}, i + this.nextStencilID, 0xFF, gl.KEEP, gl.KEEP, gl.REPLACE);
+            }
+            this.nextStencilID += stencilValues;
+            return [zToStencilMode, coords];
+        }
+        return [{[minTileZ]: StencilMode.disabled}, coords];
+    }
+
     colorModeForRenderPass(): $ReadOnly<ColorMode> {
         const gl = this.context.gl;
         if (this._showOverdrawInspector) {
@@ -358,15 +385,6 @@ class Painter {
             coordsAscending[id] = sourceCache.getVisibleCoordinates();
             coordsDescending[id] = coordsAscending[id].slice().reverse();
             coordsDescendingSymbol[id] = sourceCache.getVisibleCoordinates(true).reverse();
-        }
-
-        for (const id in sourceCaches) {
-            const sourceCache = sourceCaches[id];
-            const source = sourceCache.getSource();
-            if (source.type !== 'raster' && source.type !== 'raster-dem') continue;
-            const visibleTiles = [];
-            for (const coord of coordsAscending[id]) visibleTiles.push(sourceCache.getTile(coord));
-            updateTileMasks(visibleTiles, this.context);
         }
 
         this.opaquePassCutoff = Infinity;
@@ -579,9 +597,9 @@ class Painter {
         return !imagePosA || !imagePosB;
     }
 
-    useProgram(name: string, programConfiguration: ProgramConfiguration = this.emptyProgramConfiguration): Program<any> {
+    useProgram(name: string, programConfiguration: ?ProgramConfiguration): Program<any> {
         this.cache = this.cache || {};
-        const key = `${name}${programConfiguration.cacheKey || ''}${this._showOverdrawInspector ? '/overdraw' : ''}`;
+        const key = `${name}${programConfiguration ? programConfiguration.cacheKey : ''}${this._showOverdrawInspector ? '/overdraw' : ''}`;
         if (!this.cache[key]) {
             this.cache[key] = new Program(this.context, shaders[name], programConfiguration, programUniforms[name], this._showOverdrawInspector);
         }

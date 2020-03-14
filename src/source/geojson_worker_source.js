@@ -2,7 +2,7 @@
 
 import {getJSON} from '../util/ajax';
 
-import performance from '../util/performance';
+import {RequestPerformance} from '../util/performance';
 import rewind from '@mapbox/geojson-rewind';
 import GeoJSONWrapper from './geojson_wrapper';
 import vtpbf from 'vt-pbf';
@@ -161,7 +161,7 @@ class GeoJSONWorkerSource extends VectorTileWorkerSource {
         delete this._pendingLoadDataParams;
 
         const perf = (params && params.request && params.request.collectResourceTiming) ?
-            new performance.Performance(params.request) : false;
+            new RequestPerformance(params.request) : false;
 
         this.loadGeoJSON(params, (err: ?Error, data: ?Object) => {
             if (err || !data) {
@@ -283,15 +283,27 @@ class GeoJSONWorkerSource extends VectorTileWorkerSource {
     }
 
     getClusterExpansionZoom(params: {clusterId: number}, callback: Callback<number>) {
-        callback(null, this._geoJSONIndex.getClusterExpansionZoom(params.clusterId));
+        try {
+            callback(null, this._geoJSONIndex.getClusterExpansionZoom(params.clusterId));
+        } catch (e) {
+            callback(e);
+        }
     }
 
     getClusterChildren(params: {clusterId: number}, callback: Callback<Array<GeoJSONFeature>>) {
-        callback(null, this._geoJSONIndex.getChildren(params.clusterId));
+        try {
+            callback(null, this._geoJSONIndex.getChildren(params.clusterId));
+        } catch (e) {
+            callback(e);
+        }
     }
 
     getClusterLeaves(params: {clusterId: number, limit: number, offset: number}, callback: Callback<Array<GeoJSONFeature>>) {
-        callback(null, this._geoJSONIndex.getLeaves(params.clusterId, params.limit, params.offset));
+        try {
+            callback(null, this._geoJSONIndex.getLeaves(params.clusterId, params.limit, params.offset));
+        } catch (e) {
+            callback(e);
+        }
     }
 }
 

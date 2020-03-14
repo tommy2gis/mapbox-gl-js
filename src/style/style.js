@@ -27,6 +27,7 @@ import GeoJSONSource from '../source/geojson_source';
 import styleSpec from '../style-spec/reference/latest';
 import getWorkerPool from '../util/global_worker_pool';
 import deref from '../style-spec/deref';
+import emptyStyle from '../style-spec/empty';
 import diffStyles, {operations as diffOperations} from '../style-spec/diff';
 import {
     registerForPluginStateChange,
@@ -87,6 +88,8 @@ const ignoredDiffOperations = pick(diffOperations, [
     'setBearing',
     'setPitch'
 ]);
+
+const empty = emptyStyle();
 
 export type StyleOptions = {
     validate?: boolean,
@@ -229,6 +232,11 @@ class Style extends Evented {
         });
     }
 
+    loadEmpty() {
+        this.fire(new Event('dataloading', {dataType: 'style'}));
+        this._load(empty, false);
+    }
+
     _load(json: StyleSpecification, validate: boolean) {
         if (validate && emitValidationErrors(this, validateStyle(json))) {
             return;
@@ -242,20 +250,7 @@ class Style extends Evented {
         }
 
         if (json.sprite) {
-            this._spriteRequest = loadSprite(json.sprite, this.map._requestManager, (err, images) => {
-                this._spriteRequest = null;
-                if (err) {
-                    this.fire(new ErrorEvent(err));
-                } else if (images) {
-                    for (const id in images) {
-                        this.imageManager.addImage(id, images[id]);
-                    }
-                }
-
-                this.imageManager.setLoaded(true);
-                this.dispatcher.broadcast('setImages', this.imageManager.listImages());
-                this.fire(new Event('data', {dataType: 'style'}));
-            });
+            this._loadSprite(json.sprite);
         } else {
             this.imageManager.setLoaded(true);
         }
@@ -278,6 +273,23 @@ class Style extends Evented {
 
         this.fire(new Event('data', {dataType: 'style'}));
         this.fire(new Event('style.load'));
+    }
+
+    _loadSprite(url: string) {
+        this._spriteRequest = loadSprite(url, this.map._requestManager, (err, images) => {
+            this._spriteRequest = null;
+            if (err) {
+                this.fire(new ErrorEvent(err));
+            } else if (images) {
+                for (const id in images) {
+                    this.imageManager.addImage(id, images[id]);
+                }
+            }
+
+            this.imageManager.setLoaded(true);
+            this.dispatcher.broadcast('setImages', this.imageManager.listImages());
+            this.fire(new Event('data', {dataType: 'style'}));
+        });
     }
 
     _validateLayer(layer: StyleLayer) {
@@ -396,10 +408,11 @@ class Style extends Evented {
             this.sourceCaches[sourceId].used = false;
         }
 
+        const availableImages = this.imageManager.listImages();
         for (const layerId of this._order) {
             const layer = this._layers[layerId];
 
-            layer.recalculate(parameters, this.imageManager.listImages());
+            layer.recalculate(parameters, availableImages);
             if (!layer.isHidden(parameters.zoom) && layer.source) {
                 this.sourceCaches[layer.source].used = true;
             }
@@ -867,12 +880,11 @@ class Style extends Evented {
         return this.getLayer(layer).getPaintProperty(name);
     }
 
-    setFeatureState(feature: { source: string; sourceLayer?: string; id: string | number; }, state: Object) {
+    setFeatureState(target: { source: string; sourceLayer?: string; id: string | number; }, state: Object) {
         this._checkLoaded();
-        const sourceId = feature.source;
-        const sourceLayer = feature.sourceLayer;
+        const sourceId = target.source;
+        const sourceLayer = target.sourceLayer;
         const sourceCache = this.sourceCaches[sourceId];
-        const featureId = parseInt(feature.id, 10);
 
         if (sourceCache === undefined) {
             this.fire(new ErrorEvent(new Error(`The source '${sourceId}' does not exist in the map's style.`)));
@@ -887,12 +899,11 @@ class Style extends Evented {
             this.fire(new ErrorEvent(new Error(`The sourceLayer parameter must be provided for vector source types.`)));
             return;
         }
-        if (isNaN(featureId) || featureId < 0) {
-            this.fire(new ErrorEvent(new Error(`The feature id parameter must be provided and non-negative.`)));
-            return;
+        if (target.id === undefined) {
+            this.fire(new ErrorEvent(new Error(`The feature id parameter must be provided.`)));
         }
 
-        sourceCache.setFeatureState(sourceLayer, featureId, state);
+        sourceCache.setFeatureState(sourceLayer, target.id, state);
     }
 
     removeFeatureState(target: { source: string; sourceLayer?: string; id?: string | number; }, key?: string) {
@@ -907,15 +918,9 @@ class Style extends Evented {
 
         const sourceType = sourceCache.getSource().type;
         const sourceLayer = sourceType === 'vector' ? target.sourceLayer : undefined;
-        const featureId = parseInt(target.id, 10);
 
         if (sourceType === 'vector' && !sourceLayer) {
             this.fire(new ErrorEvent(new Error(`The sourceLayer parameter must be provided for vector source types.`)));
-            return;
-        }
-
-        if (target.id !== undefined && isNaN(featureId) || featureId < 0) {
-            this.fire(new ErrorEvent(new Error(`The feature id parameter must be non-negative.`)));
             return;
         }
 
@@ -924,15 +929,14 @@ class Style extends Evented {
             return;
         }
 
-        sourceCache.removeFeatureState(sourceLayer, featureId, key);
+        sourceCache.removeFeatureState(sourceLayer, target.id, key);
     }
 
-    getFeatureState(feature: { source: string; sourceLayer?: string; id: string | number; }) {
+    getFeatureState(target: { source: string; sourceLayer?: string; id: string | number; }) {
         this._checkLoaded();
-        const sourceId = feature.source;
-        const sourceLayer = feature.sourceLayer;
+        const sourceId = target.source;
+        const sourceLayer = target.sourceLayer;
         const sourceCache = this.sourceCaches[sourceId];
-        const featureId = parseInt(feature.id, 10);
 
         if (sourceCache === undefined) {
             this.fire(new ErrorEvent(new Error(`The source '${sourceId}' does not exist in the map's style.`)));
@@ -943,12 +947,11 @@ class Style extends Evented {
             this.fire(new ErrorEvent(new Error(`The sourceLayer parameter must be provided for vector source types.`)));
             return;
         }
-        if (isNaN(featureId) || featureId < 0) {
-            this.fire(new ErrorEvent(new Error(`The feature id parameter must be provided and non-negative.`)));
-            return;
+        if (target.id === undefined) {
+            this.fire(new ErrorEvent(new Error(`The feature id parameter must be provided.`)));
         }
 
-        return sourceCache.getFeatureState(sourceLayer, featureId);
+        return sourceCache.getFeatureState(sourceLayer, target.id);
     }
 
     getTransition() {
@@ -1215,7 +1218,7 @@ class Style extends Evented {
         }
     }
 
-    _updatePlacement(transform: Transform, showCollisionBoxes: boolean, fadeDuration: number, crossSourceCollisions: boolean) {
+    _updatePlacement(transform: Transform, showCollisionBoxes: boolean, fadeDuration: number, crossSourceCollisions: boolean, forceFullPlacement: boolean = false) {
         let symbolBucketsChanged = false;
         let placementCommitted = false;
 
@@ -1243,7 +1246,7 @@ class Style extends Evented {
         // We need to restart placement to keep layer indices in sync.
         // Also force full placement when fadeDuration === 0 to ensure that newly loaded
         // tiles will fully display symbols in their first frame
-        const forceFullPlacement = this._layerOrderChanged || fadeDuration === 0;
+        forceFullPlacement = forceFullPlacement || this._layerOrderChanged || fadeDuration === 0;
 
         if (forceFullPlacement || !this.pauseablePlacement || (this.pauseablePlacement.isDone() && !this.placement.stillRecent(browser.now(), transform.zoom))) {
             this.pauseablePlacement = new PauseablePlacement(transform, this._order, forceFullPlacement, showCollisionBoxes, fadeDuration, crossSourceCollisions, this.placement);

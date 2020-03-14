@@ -112,7 +112,7 @@ class RasterTileSource extends Evented implements Source {
     }
 
     loadTile(tile: Tile, callback: Callback<void>) {
-        const url = this.map._requestManager.normalizeTileURL(tile.tileID.canonical.url(this.tiles, this.scheme, this.zoomOffset), this.url, this.tileSize);
+        const url = this.map._requestManager.normalizeTileURL(tile.tileID.canonical.url(this.tiles, this.scheme, this.zoomOffset), this.tileSize);
         tile.request = getImage(this.map._requestManager.transformRequest(url, ResourceType.Tile), (err, img) => {
             delete tile.request;
 
@@ -160,7 +160,6 @@ class RasterTileSource extends Evented implements Source {
 
     unloadTile(tile: Tile, callback: Callback<void>) {
         if (tile.texture) this.map.painter.saveTileTexture(tile.texture);
-        tile.clearMask();
         callback();
     }
 
