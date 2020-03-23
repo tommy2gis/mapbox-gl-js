@@ -116,6 +116,7 @@ class GeoJSONSource extends Evented implements Source {
         if (options.type) this.type = options.type;
         if (options.attribution) this.attribution = options.attribution;
         if (options.crs) this.crs = options.crs;
+        console.log('2'+this.crs);
         this.promoteId = options.promoteId;
 
         const scale = EXTENT / this.tileSize;

@@ -1,7 +1,7 @@
 // @flow
 
 import Protobuf from 'pbf';
-import VT from '@mapbox/vector-tile';
+import VT from '@shitao1988/swsk-vector-tile';
 import assert from 'assert';
 
 import deref from '../../src/style-spec/deref';

@@ -21,6 +21,10 @@ export function mercatorXfromLng(lng: number) {
 }
 
 export function mercatorYfromLat(lat: number) {
+    return (180 - (180 / Math.PI * Math.log(Math.tan(Math.PI / 4 + lat * Math.PI / 360)))) / 360;
+}
+
+export function mercatorYfrom2000Lat(lat: number) {
     return (90 - lat) / 360;
 }
 
@@ -112,6 +116,25 @@ class MercatorCoordinate {
     }
 
     /**
+     * Project a `LngLat` to a `MercatorCoordinate`.
+     *
+     * @param {LngLatLike} lngLatLike The location to project.
+     * @param {number} altitude The altitude in meters of the position.
+     * @returns {MercatorCoordinate} The projected mercator coordinate.
+     * @example
+     * var coord = mapboxgl.MercatorCoordinate.fromLngLat({ lng: 0, lat: 0}, 0);
+     * coord; // MercatorCoordinate(0.5, 0.5, 0)
+     */
+    static from2000LngLat(lngLatLike: LngLatLike, altitude: number = 0) {
+        const lngLat = LngLat.convert(lngLatLike);
+
+        return new MercatorCoordinate(
+                mercatorXfromLng(lngLat.lng),
+                mercatorYfrom2000Lat(lngLat.lat),
+                mercatorZfromAltitude(altitude, lngLat.lat));
+    }
+
+    /**
      * Returns the `LngLat` for the coordinate.
      *
      * @returns {LngLat} The `LngLat` object.
@@ -119,7 +142,7 @@ class MercatorCoordinate {
      * var coord = new mapboxgl.MercatorCoordinate(0.5, 0.5, 0);
      * var latLng = coord.toLngLat(); // LngLat(0, 0)
      */
-    toLngLat(crs) {
+    toLngLat(crs: ?string) {
         return new LngLat(
                 lngFromMercatorX(this.x),
                 crs==='EPSG:4490'?latFromMercator2000Y(this.y):latFromMercatorY(this.y));

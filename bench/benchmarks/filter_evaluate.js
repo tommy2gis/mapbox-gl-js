@@ -1,6 +1,6 @@
 
 import Benchmark from '../lib/benchmark';
-import {VectorTile} from '@mapbox/vector-tile';
+import {VectorTile} from '@shitao1988/swsk-vector-tile';
 import Pbf from 'pbf';
 import createFilter from '../../src/style-spec/feature_filter';
 import filters from '../data/filters.json';
