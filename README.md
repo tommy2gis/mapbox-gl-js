@@ -1,4 +1,4 @@
-> This repository is a fork of `mapbox/mapbox-gl-js`, adding support for CGCS2000.
+> This repository is a fork of `cgcs2000/mapbox-gl-js`, adding support for CGCS2000.
 
 ```js
 var map = new mapboxgl.Map({
