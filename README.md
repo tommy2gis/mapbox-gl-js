@@ -1,5 +1,15 @@
 > This repository is a fork of `mapbox/mapbox-gl-js`, adding support for CGCS2000.
 
+
+var map = new mapboxgl.Map({
+    container: 'map',
+    zoom: 14,
+    center: [120.57, 32.385858],
+    style: style,
+    crs:'EPSG:4490',
+    hash: true
+});
+
 接天地图瓦片：
 
 ```js
