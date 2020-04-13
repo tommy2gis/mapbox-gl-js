@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>创建地图场景</title>
+    <style> ::-webkit-scrollbar{display:none;}html,body{overflow:hidden;margin:0;}
+    	#map { position:absolute; top:0; bottom:0; width:100%; }
+    </style>
+</head>
+<body>
+<div id="map"></div>
+<link href='https://api.tiles.mapbox.com/mapbox-gl-js/v1.5.0/mapbox-gl.css' rel='stylesheet' />
+  
+<script src='/dist/mapbox-gl-dev.js'></script>
+<script src="https://unpkg.com/@antv/l7"></script>
+<script>
+
+var style = {
+    version: 8,
+    sources: {
+        countries: {
+            type: 'geojson',
+            crs:'EPSG:4490',
+            data: 'https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_110m_admin_0_countries.geojson'
+        },
+        tianditu: {
+            type: 'raster',
+            tiles: ['http://t0.tianditu.gov.cn/DataServer?T=vec_c&x={x}&y={y}&l={z}&tk=5476e03145570ac8182560f41a1e538b'],
+            tileSize: 256
+        }
+    },
+    layers: [
+        {
+            id: 'tianditu',
+            type: 'raster',
+            source: 'tianditu'
+        },
+        {
+            id: 'countries',
+            type: 'line',
+            source: 'countries'
+        }
+    ]
+};
+
+  const scene = new L7.Scene({
+    id: 'map',
+    map: new L7.Mapbox({
+      style: "dark", // 样式URL
+      center: [120.19382669582967, 30.258134],
+      pitch: 0,
+      zoom: 12,
+      token: 'pk.eyJ1Ijoic2hpdGFvMTk4OCIsImEiOiJjaWc3eDJ2eHowMjA5dGpsdzZlcG5uNWQ5In0.nQQjb4DrqnZtY68rOQIjJA',
+    }),
+  });
+
+fetch('https://gw.alipayobjects.com/os/rmsportal/oVTMqfzuuRFKiDwhPSFL.json')
+  .then(res => res.json())
+  .then(data => {
+    const pointLayer = new L7.PointLayer({})
+      .source(data.list, {
+        parser: {
+          type: 'json',
+          x: 'j',
+          y: 'w'
+        }
+      })
+      .shape('cylinder')
+      .size('t', function(level) {
+        return [ 1, 2, level * 2 + 20 ];
+      })
+      .color('t', [
+        '#094D4A',
+        '#146968',
+        '#1D7F7E',
+        '#289899',
+        '#34B6B7',
+        '#4AC5AF',
+        '#5FD3A6',
+        '#7BE39E',
+        '#A1EDB8',
+        '#CEF8D6'
+      ])
+      .style({
+        opacity: 1.0
+      });
+    scene.addLayer(pointLayer);
+  });
+
+</script>
+</body>
+</html>

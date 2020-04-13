@@ -31,6 +31,11 @@ var style = {
             type: 'raster',
             tiles: ['http://t0.tianditu.gov.cn/DataServer?T=vec_c&x={x}&y={y}&l={z}&tk=5476e03145570ac8182560f41a1e538b'],
             tileSize: 256
+        },
+        tianditucva: {
+            type: 'raster',
+            tiles: ['http://t0.tianditu.gov.cn/DataServer?T=cva_c&x={x}&y={y}&l={z}&tk=5476e03145570ac8182560f41a1e538b'],
+            tileSize: 256
         }
     },
     layers: [
@@ -38,6 +43,12 @@ var style = {
             id: 'tianditu',
             type: 'raster',
             source: 'tianditu'
+        },
+        {
+          id: 'tianditucva',
+            type: 'raster',
+            source: 'tianditucva'
+          
         },
         {
             id: 'countries',
@@ -52,6 +63,7 @@ var map = window.map = new mapboxgl.Map({
     zoom: 14,
     center: [120.57, 32.385858],
     style: style,
+    isIntScrollZoom:true,
     crs:'EPSG:4490',
     hash: true
 });
