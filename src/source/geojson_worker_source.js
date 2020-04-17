@@ -7,7 +7,7 @@ import rewind from '@mapbox/geojson-rewind';
 import GeoJSONWrapper from './geojson_wrapper';
 import vtpbf from 'vt-pbf';
 import Supercluster from '@cgcs2000/supercluster';
-import geojsonvt from '@cgcs2000/geojson-vt';
+import geojsonvt from '@shitao1988/swsk-geojson-vt';
 import assert from 'assert';
 import VectorTileWorkerSource from './vector_tile_worker_source';
 import {createExpression} from '../style-spec/expression';
@@ -161,7 +161,7 @@ class GeoJSONWorkerSource extends VectorTileWorkerSource {
         const params = this._pendingLoadDataParams;
         delete this._pendingCallback;
         delete this._pendingLoadDataParams;
-
+        //params.geojsonVtOptions.crs='EPSG:4490';
         const perf = (params && params.request && params.request.collectResourceTiming) ?
             new RequestPerformance(params.request) : false;
 

@@ -70,6 +70,7 @@ type IControl = {
 type MapOptions = {
     hash?: boolean | string,
     interactive?: boolean,
+    crs:string,
     container: HTMLElement | string,
     bearingSnap?: number,
     attributionControl?: boolean,
@@ -115,6 +116,8 @@ const defaultOptions = {
     zoom: 0,
     bearing: 0,
     pitch: 0,
+    crs:'EPSG:3857',
+    isIntScrollZoom:false,
 
     minZoom: defaultMinZoom,
     maxZoom: defaultMaxZoom,
@@ -366,9 +369,10 @@ class Map extends Camera {
             throw new Error(`maxPitch must be less than or equal to ${defaultMaxPitch}`);
         }
 
-        const transform = new Transform(options.minZoom, options.maxZoom, options.minPitch, options.maxPitch, options.renderWorldCopies);
+        const transform = new Transform(options.minZoom, options.maxZoom, options.minPitch, options.maxPitch, options.renderWorldCopies, options.crs);
         super(transform, options);
-
+        this.crs = options.crs;
+        this.isIntScrollZoom=options.isIntScrollZoom;
         this._interactive = options.interactive;
         this._maxTileCacheSize = options.maxTileCacheSize;
         this._failIfMajorPerformanceCaveat = options.failIfMajorPerformanceCaveat;

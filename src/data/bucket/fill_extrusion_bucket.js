@@ -8,7 +8,7 @@ import {ProgramConfigurationSet} from '../program_configuration';
 import {TriangleIndexArray} from '../index_array_type';
 import EXTENT from '../extent';
 import earcut from 'earcut';
-import mvt from '@mapbox/vector-tile';
+import mvt from '@shitao1988/swsk-vector-tile';
 const vectorTileFeatureTypes = mvt.VectorTileFeature.types;
 import classifyRings from '../../util/classify_rings';
 import assert from 'assert';

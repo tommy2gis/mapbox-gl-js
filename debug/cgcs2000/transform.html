@@ -23,12 +23,13 @@
 <script src='/dist/mapbox-gl-dev.js'></script>
 <script src='/debug/access_token_generated.js'></script>
 <script>
-
+mapboxgl.accessToken='pk.eyJ1Ijoic2hpdGFvMTk4OCIsImEiOiJjaWc3eDJ2eHowMjA5dGpsdzZlcG5uNWQ5In0.nQQjb4DrqnZtY68rOQIjJA';
 var style = {
     version: 8,
     sources: {
         points: {
             type: 'geojson',
+            crs:'EPSG:4490',
             data: 'https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_50m_geography_regions_points.geojson'
         },
         tianditu: {
