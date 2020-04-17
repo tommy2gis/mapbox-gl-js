@@ -9,8 +9,10 @@ import {number as interpolate} from '../style-spec/util/interpolate';
 import EXTENT from '../data/extent';
 import {vec4, mat4, mat2, vec2} from 'gl-matrix';
 import {Aabb, Frustum} from '../util/primitives.js';
+import EdgeInsets from './edge_insets';
 
 import {UnwrappedTileID, OverscaledTileID, CanonicalTileID} from '../source/tile_id';
+import type {PaddingOptions} from './edge_insets';
 
 /**
  * A single transform, generally used for a single tile to be
@@ -49,9 +51,10 @@ class Transform {
     _minPitch: number;
     _maxPitch: number;
     _center: LngLat;
+    _edgeInsets: EdgeInsets;
     _constraining: boolean;
-    _posMatrixCache: {[string]: Float32Array};
-    _alignedPosMatrixCache: {[string]: Float32Array};
+    _posMatrixCache: {[_: string]: Float32Array};
+    _alignedPosMatrixCache: {[_: string]: Float32Array};
 
     constructor(minZoom: ?number, maxZoom: ?number, minPitch: ?number, maxPitch: ?number, renderWorldCopies: boolean | void,crs: ?string) {
         this.tileSize = 512; // constant
@@ -77,6 +80,7 @@ class Transform {
         this._fov = 0.6435011087932844;
         this._pitch = 0;
         this._unmodified = true;
+        this._edgeInsets = new EdgeInsets();
         this._posMatrixCache = {};
         this._alignedPosMatrixCache = {};
     }
@@ -93,6 +97,7 @@ class Transform {
         clone._fov = this._fov;
         clone._pitch = this._pitch;
         clone._unmodified = this._unmodified;
+        clone._edgeInsets = this._edgeInsets.clone();
         clone._calcMatrices();
         return clone;
     }
@@ -140,8 +145,8 @@ class Transform {
         return this.tileSize * this.scale;
     }
 
-    get centerPoint(): Point {
-        return this.size._div(2);
+    get centerOffset(): Point {
+        return this.centerPoint._sub(this.size._div(2));
     }
 
     get size(): Point {
@@ -207,12 +212,58 @@ class Transform {
         this._calcMatrices();
     }
 
+    get padding(): PaddingOptions { return this._edgeInsets.toJSON(); }
+    set padding(padding: PaddingOptions) {
+        if (this._edgeInsets.equals(padding)) return;
+        this._unmodified = false;
+        //Update edge-insets inplace
+        this._edgeInsets.interpolate(this._edgeInsets, padding, 1);
+        this._calcMatrices();
+    }
+
+    /**
+     * The center of the screen in pixels with the top-left corner being (0,0)
+     * and +y axis pointing downwards. This accounts for padding.
+     *
+     * @readonly
+     * @type {Point}
+     * @memberof Transform
+     */
+    get centerPoint(): Point {
+        return this._edgeInsets.getCenter(this.width, this.height);
+    }
+
+    /**
+     * Returns if the padding params match
+     *
+     * @param {PaddingOptions} padding
+     * @returns {boolean}
+     * @memberof Transform
+     */
+    isPaddingEqual(padding: PaddingOptions): boolean {
+        return this._edgeInsets.equals(padding);
+    }
+
+    /**
+     * Helper method to upadte edge-insets inplace
+     *
+     * @param {PaddingOptions} target
+     * @param {number} t
+     * @memberof Transform
+     */
+    interpolatePadding(start: PaddingOptions, target: PaddingOptions, t: number) {
+        this._unmodified = false;
+        this._edgeInsets.interpolate(start, target, t);
+        this._constrain();
+        this._calcMatrices();
+    }
+
     /**
      * Return a zoom level that will cover all tiles the transform
-     * @param {Object} options
-     * @param {number} options.tileSize
-     * @param {boolean} options.roundZoom
-     * @returns {number} zoom level
+     * @param {Object} options options
+     * @param {number} options.tileSize Tile size, expressed in screen pixels.
+     * @param {boolean} options.roundZoom Target zoom level. If true, the value will be rounded to the closest integer. Otherwise the value will be floored.
+     * @returns {number} zoom level An integer zoom level at which all tiles will be visible.
      */
     coveringZoomLevel(options: {roundZoom?: boolean, tileSize: number}) {
         const z = (options.roundZoom ? Math.round : Math.floor)(
@@ -262,6 +313,7 @@ class Transform {
      * @param {boolean} options.reparseOverscaled
      * @param {boolean} options.renderWorldCopies
      * @returns {Array<OverscaledTileID>} OverscaledTileIDs
+     * @private
      */
     coveringTiles(
         options: {
@@ -284,9 +336,10 @@ class Transform {
         const centerPoint = [numTiles * centerCoord.x, numTiles * centerCoord.y, 0];
         const cameraFrustum = Frustum.fromInvProjectionMatrix(this.invProjMatrix, this.worldSize, z);
 
-        // No change of LOD behavior for pitch lower than 60: return only tile ids from the requested zoom level
+        // No change of LOD behavior for pitch lower than 60 and when there is no top padding: return only tile ids from the requested zoom level
         let minZoom = options.minzoom || 0;
-        if (this.pitch <= 60.0)
+        // Use 0.1 as an epsilon to avoid for explicit == 0.0 floating point checks
+        if (this.pitch <= 60.0 && this._edgeInsets.top < 0.1)
             minZoom = z;
 
         // There should always be a certain number of maximum zoom level tiles surrounding the center location
@@ -411,6 +464,7 @@ class Transform {
      * Given a location, return the screen point that corresponds to it
      * @param {LngLat} lnglat location
      * @returns {Point} screen point
+     * @private
      */
     locationPoint(lnglat: LngLat) {
         return this.coordinatePoint(this.locationCoordinate(lnglat));
@@ -420,6 +474,7 @@ class Transform {
      * Given a point on screen, return its lnglat
      * @param {Point} p screen point
      * @returns {LngLat} lnglat location
+     * @private
      */
     pointLocation(p: Point) {
         return this.coordinateLocation(this.pointCoordinate(p));
@@ -430,6 +485,7 @@ class Transform {
      * coordinate that represents it at this transform's zoom level.
      * @param {LngLat} lnglat
      * @returns {Coordinate}
+     * @private
      */
     locationCoordinate(lnglat: LngLat) {
         return this._crs==='EPSG:4490'?MercatorCoordinate.from2000LngLat(lnglat):MercatorCoordinate.fromLngLat(lnglat);
@@ -439,6 +495,7 @@ class Transform {
      * Given a Coordinate, return its geographical position.
      * @param {Coordinate} coord
      * @returns {LngLat} lnglat
+     * @private
      */
     coordinateLocation(coord: MercatorCoordinate) {
         return coord.toLngLat(this._crs);
@@ -476,6 +533,7 @@ class Transform {
      * Given a coordinate, return the screen point that corresponds to it
      * @param {Coordinate} coord
      * @returns {Point} screen point
+     * @private
      */
     coordinatePoint(coord: MercatorCoordinate) {
         const p = [coord.x * this.worldSize, coord.y * this.worldSize, 0, 1];
@@ -486,6 +544,7 @@ class Transform {
     /**
      * Returns the map's geographical bounds. When the bearing or pitch is non-zero, the visible region is not
      * an axis-aligned rectangle, and the result is the smallest bounds that encompasses the visible region.
+     * @returns {LngLatBounds} Returns a {@link LngLatBounds} object describing the map's geographical bounds.
      */
     getBounds(): LngLatBounds {
         return new LngLatBounds()
@@ -497,6 +556,7 @@ class Transform {
 
     /**
      * Returns the maximum geographical bounds the map is constrained to, or `null` if none set.
+     * @returns {LngLatBounds} {@link LngLatBounds}
      */
     getMaxBounds(): LngLatBounds | null {
         if (!this.latRange || this.latRange.length !== 2 ||
@@ -507,6 +567,7 @@ class Transform {
 
     /**
      * Sets or clears the map's geographical constraints.
+     * @param {LngLatBounds} bounds A {@link LngLatBounds} object describing the new geographic boundaries of the map.
      */
     setMaxBounds(bounds?: LngLatBounds) {
         if (bounds) {
@@ -522,6 +583,7 @@ class Transform {
     /**
      * Calculate the posMatrix that, given a tile coordinate, would be used to display the tile on a map.
      * @param {UnwrappedTileID} unwrappedTileID;
+     * @private
      */
     calculatePosMatrix(unwrappedTileID: UnwrappedTileID, aligned: boolean = false): Float32Array {
         const posMatrixKey = unwrappedTileID.key;
@@ -619,15 +681,17 @@ class Transform {
     _calcMatrices() {
         if (!this.height) return;
 
-        this.cameraToCenterDistance = 0.5 / Math.tan(this._fov / 2) * this.height;
+        const halfFov = this._fov / 2;
+        const offset = this.centerOffset;
+        this.cameraToCenterDistance = 0.5 / Math.tan(halfFov) * this.height;
 
-        // Find the distance from the center point [width/2, height/2] to the
-        // center top point [width/2, 0] in Z units, using the law of sines.
+        // Find the distance from the center point [width/2 + offset.x, height/2 + offset.y] to the
+        // center top point [width/2 + offset.x, 0] in Z units, using the law of sines.
         // 1 Z unit is equivalent to 1 horizontal px at the center of the map
         // (the distance between[width/2, height/2] and [width/2 + 1, height/2])
-        const halfFov = this._fov / 2;
         const groundAngle = Math.PI / 2 + this._pitch;
-        const topHalfSurfaceDistance = Math.sin(halfFov) * this.cameraToCenterDistance / Math.sin(clamp(Math.PI - groundAngle - halfFov, 0.01, Math.PI - 0.01));
+        const fovAboveCenter = this._fov * (0.5 + offset.y / this.height);
+        const topHalfSurfaceDistance = Math.sin(fovAboveCenter) * this.cameraToCenterDistance / Math.sin(clamp(Math.PI - groundAngle - fovAboveCenter, 0.01, Math.PI - 0.01));
         const point = this.point;
         const x = point.x, y = point.y;
 
@@ -648,6 +712,10 @@ class Transform {
         // matrix for conversion from location to GL coordinates (-1 .. 1)
         let m = new Float64Array(16);
         mat4.perspective(m, this._fov, this.width / this.height, nearZ, farZ);
+
+        //Apply center of perspective offset
+        m[8] = -offset.x * 2 / this.width;
+        m[9] = offset.y * 2 / this.height;
 
         mat4.scale(m, m, [1, -1, 1]);
         mat4.translate(m, m, [0, 0, -this.cameraToCenterDistance]);
