@@ -29,21 +29,20 @@ var style = {
         },
         tianditu: {
             type: 'raster',
-            tiles: ['http://t0.tianditu.gov.cn/DataServer?T=vec_c&x={x}&y={y}&l={z}&tk=5476e03145570ac8182560f41a1e538b'],
+            tiles: ['http://t0.tianditu.gov.cn/DataServer?T=vec_w&x={x}&y={y}&l={z}&tk=5476e03145570ac8182560f41a1e538b'],
             tileSize: 256
         },
         tianditucva: {
             type: 'raster',
-            tiles: ['http://t0.tianditu.gov.cn/DataServer?T=cva_c&x={x}&y={y}&l={z}&tk=5476e03145570ac8182560f41a1e538b'],
+            tiles: ['http://t0.tianditu.gov.cn/DataServer?T=cva_w&x={x}&y={y}&l={z}&tk=5476e03145570ac8182560f41a1e538b'],
             tileSize: 256
         },
         "openmaptiles": {
         "type": "vector",
         "scheme": "xyz",
         "minzoom": 9,
-        "zoomOffset":-1,
         "tiles": [
-          "http://localhost/gwc/geostar_wuxi/EPSG_4326_{z}/{dir_x_y}/{x_y}.pbf"
+          "http://localhost/gwc/geostar_wuxi/EPSG_900913_{z}/{dir_x_y}/{x_y}.pbf"
         ]
       },
     },
@@ -222,7 +221,6 @@ var map = window.map = new mapboxgl.Map({
     zoom: 14,
     center: [120.57, 32.385858],
     style: style,
-    crs:'EPSG:4490',
     isIntScrollZoom:true,
     hash: true
 });
