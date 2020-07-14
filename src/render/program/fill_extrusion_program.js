@@ -45,6 +45,9 @@ export type FillExtrusionPatternUniformsType = {|
     'u_opacity': Uniform1f
 |};
 
+
+
+
 const fillExtrusionUniforms = (context: Context, locations: UniformLocations): FillExtrusionUniformsType => ({
     'u_matrix': new UniformMatrix4f(context, locations.u_matrix),
     'u_lightpos': new Uniform3f(context, locations.u_lightpos),
@@ -53,6 +56,8 @@ const fillExtrusionUniforms = (context: Context, locations: UniformLocations): F
     'u_vertical_gradient': new Uniform1f(context, locations.u_vertical_gradient),
     'u_opacity': new Uniform1f(context, locations.u_opacity)
 });
+
+
 
 const fillExtrusionPatternUniforms = (context: Context, locations: UniformLocations): FillExtrusionPatternUniformsType => ({
     'u_matrix': new UniformMatrix4f(context, locations.u_matrix),
@@ -114,9 +119,12 @@ const fillExtrusionPatternUniformValues = (
         });
 };
 
+
+
 export {
     fillExtrusionUniforms,
     fillExtrusionPatternUniforms,
     fillExtrusionUniformValues,
-    fillExtrusionPatternUniformValues
+    fillExtrusionPatternUniformValues,
+
 };

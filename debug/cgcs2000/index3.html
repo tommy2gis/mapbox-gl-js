@@ -153,7 +153,7 @@ var style = {
         "source": "openmaptiles",
         "source-layer": "water",
         "filter": ["all", ["==", "$type", "Polygon"], ["==", "CC", "1020"]],
-        "paint": {"fill-color": "#ADD2FF"}
+        "paint": {"fill-water":'water'}
       },
       {
         "id": "water-river",
@@ -163,7 +163,7 @@ var style = {
         "source-layer": "water",
         "minzoom": 8,
         "filter": ["all", ["==", "$type", "Polygon"], ["==", "CC", "1012"]],
-        "paint": {"fill-color": "#ADD2FF"}
+        "paint": {"fill-water":'water'}
       },
       {
         "id": "water-smalriver",
@@ -174,7 +174,7 @@ var style = {
         "minzoom": 11,
         "maxzoom": 24,
         "filter": ["all", ["==", "$type", "Polygon"], ["==", "CC", "1011"]],
-        "paint": {"fill-color": "#ADD2FF"}
+        "paint": {"fill-water":'water'}
       },
       {
         "id": "subwayzwb2",

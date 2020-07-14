@@ -29,6 +29,7 @@ import fillOutlineVert from './fill_outline.vertex.glsl';
 import fillOutlinePatternFrag from './fill_outline_pattern.fragment.glsl';
 import fillOutlinePatternVert from './fill_outline_pattern.vertex.glsl';
 import fillPatternFrag from './fill_pattern.fragment.glsl';
+//import fillWaterFrag from './fill_water.fragment.glsl';
 import fillPatternVert from './fill_pattern.vertex.glsl';
 import fillExtrusionFrag from './fill_extrusion.fragment.glsl';
 import fillExtrusionVert from './fill_extrusion.vertex.glsl';
@@ -55,6 +56,9 @@ import symbolSDFVert from './symbol_sdf.vertex.glsl';
 import symbolTextAndIconFrag from './symbol_text_and_icon.fragment.glsl';
 import symbolTextAndIconVert from './symbol_text_and_icon.vertex.glsl';
 
+const fillWaterFrag= "#define TAU 6.28318530718\n#define MAX_ITER 5\n#define INTENSITY 0.004\n#define SCALE 1000.0\nuniform lowp float u_time;void main() {vec2 uv=gl_FragCoord.xy/SCALE;vec2 p=mod(uv*TAU,TAU)-250.0;vec2 i=vec2(p);float c=1.0;for (int n=0; n < MAX_ITER; n++) {float t=0.5*u_time*(1.0-(3.5/float(n+1)));i=p+vec2(cos(t-i.x)+sin(t+i.y),sin(t-i.y)+cos(t+i.x));c+=1.0/length(vec2(p.x/(sin(i.x+t)/INTENSITY),p.y/(cos(i.y+t)/INTENSITY)));}c=1.17-pow(c/float(MAX_ITER),1.4);gl_FragColor=vec4(clamp(vec3(pow(abs(c),8.0))+vec3(0.0,0.35,0.5),0.0,1.0),1.0);}"
+const fillWaterVert= "attribute vec2 a_pos;uniform mat4 u_matrix;\n#pragma mapbox: define highp vec4 color\n#pragma mapbox: define lowp float opacity\nvoid main() {\n#pragma mapbox: initialize highp vec4 color\n#pragma mapbox: initialize lowp float opacity\ngl_Position=u_matrix*vec4(a_pos,0,1);}"
+
 export const prelude = compile(preludeFrag, preludeVert);
 export const background = compile(backgroundFrag, backgroundVert);
 export const backgroundPattern = compile(backgroundPatternFrag, backgroundPatternVert);
@@ -66,6 +70,7 @@ export const collisionBox = compile(collisionBoxFrag, collisionBoxVert);
 export const collisionCircle = compile(collisionCircleFrag, collisionCircleVert);
 export const debug = compile(debugFrag, debugVert);
 export const fill = compile(fillFrag, fillVert);
+export const fillWater = compile(fillWaterFrag, fillWaterVert);
 export const fillOutline = compile(fillOutlineFrag, fillOutlineVert);
 export const fillOutlinePattern = compile(fillOutlinePatternFrag, fillOutlinePatternVert);
 export const fillPattern = compile(fillPatternFrag, fillPatternVert);
