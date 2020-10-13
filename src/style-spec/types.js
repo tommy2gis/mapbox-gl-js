@@ -353,6 +353,9 @@ export type FillExtrusionLayerSpecification = {|
         "fill-extrusion-pattern"?: DataDrivenPropertyValueSpecification<ResolvedImageSpecification>,
         "fill-extrusion-height"?: DataDrivenPropertyValueSpecification<number>,
         "fill-extrusion-base"?: DataDrivenPropertyValueSpecification<number>,
+        "fill-extrusion-intensity"?: DataDrivenPropertyValueSpecification<number>,
+        "fill-extrusion-bottom-color"?: DataDrivenPropertyValueSpecification<ColorSpecification>,
+        "fill-extrusion-pattern-repeat"?: PropertyValueSpecification<boolean>,
         "fill-extrusion-vertical-gradient"?: PropertyValueSpecification<boolean>
     |}
 |}

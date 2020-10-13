@@ -4152,6 +4152,28 @@
       },
       "property-type": "data-driven"
     },
+    "fill-extrusion-intensity":{
+      "type":"number",
+      "default":1,
+      "transition":true,
+      "expression":{
+        "interpolated":true,
+        "parameters":["zoom","feature","feature-state"]},
+        "property-type":"data-driven"
+    },
+    "fill-extrusion-bottom-color":{
+      "type":"color",
+      "default":"#000000",
+      "transition":true,
+      "requires":[{"!":"fill-extrusion-pattern"}],
+      "expression":{"interpolated":true,"parameters":["zoom","feature","feature-state"]},
+      "property-type":"data-driven"},
+    "fill-extrusion-pattern-repeat":{
+      "type":"boolean",
+      "default":true,
+      "transition":false,
+      "expression":{"interpolated":false,"parameters":["zoom"]},
+      "property-type":"data-constant"},
     "fill-extrusion-base": {
       "type": "number",
       "default": 0,

@@ -16,211 +16,14 @@
 <body>
 <div id='map'></div>
 <!-- <script src='./style.js'></script> -->
+ <script src="http://61.177.139.228:38080/developsite/GeoLMap/dist/mapbox/MAP_STYLE.WX.js"></script>
 <script src='/dist/mapbox-gl-dev.js'></script>
 <script>
-
-var style = {
-    version: 8,
-    sources: {
-        countries: {
-            type: 'geojson',
-            crs:'EPSG:4490',
-            data: 'https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_110m_admin_0_countries.geojson'
-        },
-        tianditu: {
-            type: 'raster',
-            tiles: ['http://t0.tianditu.gov.cn/DataServer?T=vec_c&x={x}&y={y}&l={z}&tk=5476e03145570ac8182560f41a1e538b'],
-            tileSize: 256
-        },
-        tianditucva: {
-            type: 'raster',
-            tiles: ['http://t0.tianditu.gov.cn/DataServer?T=cva_c&x={x}&y={y}&l={z}&tk=5476e03145570ac8182560f41a1e538b'],
-            tileSize: 256
-        },
-        "openmaptiles": {
-        "type": "vector",
-        "scheme": "xyz",
-        "minzoom": 9,
-        "zoomOffset":-1,
-        "tiles": [
-          "http://localhost/gwc/geostar_wuxi/EPSG_4326_{z}/{dir_x_y}/{x_y}.pbf"
-        ]
-      },
-    },
-    layers: [
-        {
-            id: 'tianditu',
-            type: 'raster',
-            source: 'tianditu'
-        },
-        {
-          id: 'tianditucva',
-            type: 'raster',
-            source: 'tianditucva'
-          
-        },
-        {
-            id: 'countries',
-            type: 'line',
-            source: 'countries'
-        },
-        {
-        "id": "landuse-residential",
-        "type": "fill",
-        "metadata": {"mapbox:group": "1444849388993.3071"},
-        "source": "openmaptiles",
-        "source-layer": "yuanluo",
-        "minzoom": 14,
-        "layout": {"visibility": "visible"},
-        "paint": {
-          "fill-color": {
-            "base": 1,
-            "stops": [
-              [12, "hsla(30, 19%, 90%, 0.6)"],
-              [20, "hsla(30, 19%, 90%, 0.4)"]
-            ]
-          },
-          "fill-outline-color": "#EEECE7"
-        }
-      },
-      {
-        "id": "landuse-hospital",
-        "type": "fill",
-        "metadata": {"mapbox:group": "1444849388993.3071"},
-        "source": "openmaptiles",
-        "source-layer": "wuxilanduse",
-        "minzoom": 13,
-        "filter": [
-          "all",
-          ["==", "$type", "Polygon"],
-          ["in", "用地代", "C5", "C51", "C51s", "C52"]
-        ],
-        "paint": {"fill-color": "#EBD8DE"}
-      },
-      {
-        "id": "landuse-business",
-        "type": "fill",
-        "metadata": {"mapbox:group": "1444849388993.3071"},
-        "source": "openmaptiles",
-        "source-layer": "wuxilanduse",
-        "minzoom": 13,
-        "filter": ["all", ["==", "$type", "Polygon"], ["in", "用地代", "C21"]],
-        "paint": {"fill-color": "#E9E0ED"}
-      },
-      {
-        "id": "landuse-school",
-        "type": "fill",
-        "metadata": {"mapbox:group": "1444849388993.3071"},
-        "source": "openmaptiles",
-        "source-layer": "wuxilanduse",
-        "minzoom": 13,
-        "filter": [
-          "all",
-          ["==", "$type", "Polygon"],
-          [
-            "in",
-            "用地代",
-            "C61",
-            "C62",
-            "Rcj",
-            "Rcj0",
-            "Rcj1",
-            "Rcj2",
-            "Rcj3",
-            "Rcj4",
-            "A33",
-            "A33a",
-            "A33b",
-            "A33c",
-            "A33d"
-          ]
-        ],
-        "paint": {"fill-color": "#DCEAF0"}
-      },
-      {
-        "id": "green",
-        "type": "fill",
-        "metadata": {"mapbox:group": "1444849388993.3071"},
-        "source": "openmaptiles",
-        "source-layer": "wuxigreen",
-        "filter": ["all", ["==", "$type", "Polygon"]],
-        "layout": {"visibility": "visible"},
-        "paint": {"fill-color": "#CFE8A7"}
-      },
-      {
-        "id": "water-lake",
-        "type": "fill",
-        "metadata": {"mapbox:group": "1444849388993.3071"},
-        "source": "openmaptiles",
-        "source-layer": "water",
-        "filter": ["all", ["==", "$type", "Polygon"], ["==", "CC", "1020"]],
-        "paint": {"fill-color": "#ADD2FF"}
-      },
-      {
-        "id": "water-river",
-        "type": "fill",
-        "metadata": {"mapbox:group": "1444849388993.3071"},
-        "source": "openmaptiles",
-        "source-layer": "water",
-        "minzoom": 8,
-        "filter": ["all", ["==", "$type", "Polygon"], ["==", "CC", "1012"]],
-        "paint": {"fill-color": "#ADD2FF"}
-      },
-      {
-        "id": "water-smalriver",
-        "type": "fill",
-        "metadata": {"mapbox:group": "1444849388993.3071"},
-        "source": "openmaptiles",
-        "source-layer": "water",
-        "minzoom": 11,
-        "maxzoom": 24,
-        "filter": ["all", ["==", "$type", "Polygon"], ["==", "CC", "1011"]],
-        "paint": {"fill-color": "#ADD2FF"}
-      },
-      {
-        "id": "subwayzwb2",
-        "type": "fill",
-        "metadata": {"mapbox:group": "1444849388993.3071"},
-        "source": "openmaptiles",
-        "source-layer": "subwayzwb",
-        "minzoom": 14,
-        "filter": ["all", ["==", "$type", "Polygon"], [">", "OBJECTID", 60]],
-        "layout": {"visibility": "visible"},
-        "paint": {"fill-color": "#A7D7A9"}
-      },
-      {
-        "id": "subwayzwb1",
-        "type": "fill",
-        "metadata": {"mapbox:group": "1444849388993.3071"},
-        "source": "openmaptiles",
-        "source-layer": "subwayzwb",
-        "minzoom": 14,
-        "maxzoom": 24,
-        "filter": ["all", ["==", "$type", "Polygon"], ["<=", "OBJECTID", 60]],
-        "layout": {"visibility": "visible"},
-        "paint": {"fill-color": "#F1BFBB"}
-      },
-      {
-        "id": "landuse-commercial",
-        "type": "fill",
-        "metadata": {"mapbox:group": "1444849388993.3071"},
-        "source": "openmaptiles",
-        "source-layer": "landuse",
-        "filter": [
-          "all",
-          ["==", "$type", "Polygon"],
-          ["==", "type", "commercial"]
-        ],
-        "layout": {"visibility": "visible"},
-        "paint": {"fill-color": "hsla(0, 60%, 87%, 0.23)"}
-      },
-    ]
-};
 
 var map = window.map = new mapboxgl.Map({
     container: 'map',
     zoom: 14,
-    center: [120.57, 32.385858],
+    center: [120.3080177,31.555],
     style: style,
     crs:'EPSG:4490',
     isIntScrollZoom:true,
@@ -244,7 +47,18 @@ map.on("load", function() {
         }
 
         map.addImage("gradient", { width: width, height: width, data: data });
-
+        map.setPaintProperty(
+                  '3d-buildings',
+                    'fill-extrusion-color',
+                    '#236ca6'
+                );
+        map.setPaintProperty(
+                    '3d-buildings',
+                    // 颜色强化强度（正负表示强化关系，正值顶部强化，负值底部强化）
+                    'fill-extrusion-intensity',
+                    -5
+                );
+              
         map.addLayer({
           id: "points",
           type: "symbol",
