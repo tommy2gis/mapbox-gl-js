@@ -1,7 +1,7 @@
 {
   "name": "@tommy2gis/swsk-mapbox-gl",
   "description": "A WebGL interactive maps library",
-  "version": "1.10.1",
+  "version": "1.10.2",
   "main": "dist/mapbox-gl.js",
   "style": "dist/mapbox-gl.css",
   "license": "SEE LICENSE IN LICENSE.txt",
@@ -13,11 +13,7 @@
     "node": ">=6.4.0"
   },
   "dependencies": {
-    "@shitao1988/swsk-geojson-vt": "^3.2.3",
     "@cgcs2000/supercluster": "^7.0.0",
-    "@shitao1988/swsk-vector-tile": "^1.3.4",
-    "@shitao1988/swsk-whoots-js": "^3.1.1",
-    "@mapbox/whoots-js": "^3.1.0",
     "@mapbox/geojson-rewind": "^0.4.0",
     "@mapbox/geojson-types": "^1.0.2",
     "@mapbox/jsonlint-lines-primitives": "^2.0.2",
@@ -25,6 +21,10 @@
     "@mapbox/point-geometry": "^0.1.0",
     "@mapbox/tiny-sdf": "^1.1.0",
     "@mapbox/unitbezier": "^0.0.0",
+    "@mapbox/whoots-js": "^3.1.0",
+    "@shitao1988/swsk-geojson-vt": "^3.2.3",
+    "@shitao1988/swsk-whoots-js": "^3.1.1",
+    "@tommy2gis/swsk-vector-tile": "^1.3.5",
     "csscolorparser": "~1.0.2",
     "earcut": "^2.2.2",
     "gl-matrix": "^3.0.0",

@@ -5,29 +5,40 @@ uniform float u_height_factor;
 uniform vec4 u_scale;
 uniform float u_vertical_gradient;
 uniform lowp float u_opacity;
+
 uniform vec3 u_lightcolor;
 uniform lowp vec3 u_lightpos;
 uniform lowp float u_lightintensity;
+
 attribute vec2 a_pos;
 attribute vec4 a_normal_ed;
+
 varying vec2 v_pos_a;
 varying vec2 v_pos_b;
 varying vec4 v_lighting;
+
 varying vec3 v_point_y;
 varying vec4 v_normal_ed;
 #pragma mapbox: define lowp float base
 #pragma mapbox: define lowp float height
 #pragma mapbox: define lowp vec4 pattern_from
 #pragma mapbox: define lowp vec4 pattern_to 
+#pragma mapbox: define lowp float pixel_ratio_from
+#pragma mapbox: define lowp float pixel_ratio_to
+
 void main() {
     #pragma mapbox: initialize lowp float base
     #pragma mapbox: initialize lowp float height
     #pragma mapbox: initialize mediump vec4 pattern_from
-    #pragma mapbox: initialize mediump vec4 pattern_to 
+    #pragma mapbox: initialize mediump vec4 pattern_to
+    #pragma mapbox: initialize lowp float pixel_ratio_from
+    #pragma mapbox: initialize lowp float pixel_ratio_to
+    
     vec2 pattern_tl_a = pattern_from.xy;
     vec2 pattern_br_a = pattern_from.zw;
     vec2 pattern_tl_b = pattern_to.xy;
     vec2 pattern_br_b = pattern_to.zw;
+
     float pixelRatio = u_scale.x;
     float tileRatio = u_scale.y;
     float fromScale = u_scale.z;
@@ -35,8 +46,10 @@ void main() {
 
     vec3 normal = a_normal_ed.xyz;
     float edgedistance = a_normal_ed.w;
+
     vec2 display_size_a = vec2((pattern_br_a.x - pattern_tl_a.x) / pixelRatio, (pattern_br_a.y - pattern_tl_a.y) / pixelRatio);
     vec2 display_size_b = vec2((pattern_br_b.x - pattern_tl_b.x) / pixelRatio, (pattern_br_b.y - pattern_tl_b.y) / pixelRatio);
+   
     base = max(0.0, base);
     height = max(0.0, height);
     float t = mod(normal.x, 2.0);

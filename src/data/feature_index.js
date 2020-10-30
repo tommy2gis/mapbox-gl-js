@@ -7,7 +7,7 @@ import EXTENT from './extent';
 import featureFilter from '../style-spec/feature_filter';
 import Grid from 'grid-index';
 import DictionaryCoder from '../util/dictionary_coder';
-import vt from '@shitao1988/swsk-vector-tile';
+import vt from '@tommy2gis/swsk-vector-tile';
 import Protobuf from 'pbf';
 import GeoJSONFeature from '../util/vectortile_to_geojson';
 import {arraysIntersect, mapObject} from '../util/util';

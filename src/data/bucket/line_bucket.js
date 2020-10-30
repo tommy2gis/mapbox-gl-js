@@ -7,7 +7,7 @@ import SegmentVector from '../segment';
 import {ProgramConfigurationSet} from '../program_configuration';
 import {TriangleIndexArray} from '../index_array_type';
 import EXTENT from '../extent';
-import mvt from '@shitao1988/swsk-vector-tile';
+import mvt from '@tommy2gis/swsk-vector-tile';
 const vectorTileFeatureTypes = mvt.VectorTileFeature.types;
 import {register} from '../../util/web_worker_transfer';
 import {hasPattern, addPatternDependencies} from './pattern_bucket_features';

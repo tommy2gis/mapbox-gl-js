@@ -101,6 +101,7 @@ const fillExtrusionUniformValues = (
 
     let type = 0;
     layer && (layer.getPaintProperty("fill-extrusion-intensity") && (type = 1), layer.getPaintProperty("fill-extrusion-bottom-color") && (type = 2));
+    console.log("utype2:"+type);
     return {
         'u_matrix': matrix,
         'u_lightpos': lightPos,
@@ -124,7 +125,8 @@ const fillExtrusionPatternUniformValues = (
 ): UniformValues<FillExtrusionPatternUniformsType> => {
     var u_type = 0;
     layer && (!1 === layer.paint.get("fill-extrusion-pattern-repeat") && (u_type = 1));
-
+    console.log("fill-extrusion-pattern-repeat:"+layer.paint.get("fill-extrusion-pattern-repeat"));
+    console.log("utype:"+u_type);
     return extend(fillExtrusionUniformValues(matrix, painter, shouldUseVerticalGradient, opacity),
         patternUniformValues(crossfade, painter, tile),
         {
@@ -140,5 +142,4 @@ export {
     fillExtrusionPatternUniforms,
     fillExtrusionUniformValues,
     fillExtrusionPatternUniformValues,
-
 };

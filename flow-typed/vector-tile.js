@@ -24,7 +24,7 @@ declare interface VectorTileFeature {
     toGeoJSON(x: number, y: number, z: number): GeoJSONFeature;
 }
 
-declare module "@shitao1988/swsk-vector-tile" {
+declare module "@tommy2gis/swsk-vector-tile" {
     declare class VectorTileImpl {
         constructor(pbf: Pbf): VectorTile;
     }

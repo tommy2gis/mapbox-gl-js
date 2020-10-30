@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Mapbox GL JS debug page</title>
+        <meta charset="utf-8" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0, user-scalable=no"
+        />
+        <link rel="stylesheet" href="/dist/mapbox-gl.css" />
+        <style>
+            html,
+            body,
+            #map {
+                margin: 0;
+                height: 100%;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div id="map"></div>
+        <script type="text/javascript" src="/dist/threebox.js"></script>
+
+        <script src="/dist/mapbox-gl-dev.js"></script>
+        <script src="./three.js"></script>
+        <script>
+            var style = {
+                version: 8,
+                sources: {
+                    tianditu: {
+                        type: "raster",
+                        tiles: [
+                            "http://t0.tianditu.gov.cn/DataServer?T=vec_w&x={x}&y={y}&l={z}&tk=5476e03145570ac8182560f41a1e538b",
+                        ],
+                        tileSize: 256,
+                    },
+                    tianditucva: {
+                        type: "raster",
+                        tiles: [
+                            "http://t0.tianditu.gov.cn/DataServer?T=cva_w&x={x}&y={y}&l={z}&tk=5476e03145570ac8182560f41a1e538b",
+                        ],
+                        tileSize: 256,
+                    },
+                },
+                layers: [
+                    {
+                        id: "tianditu",
+                        type: "raster",
+                        source: "tianditu",
+                    },
+                    {
+                        id: "tianditucva",
+                        type: "raster",
+                        source: "tianditucva",
+                    },
+                ],
+            };
+
+            var map = (window.map = new mapboxgl.Map({
+                container: "map",
+                zoom: 16,
+                bearing: -47,
+                pitch: 45,
+                center: [114.26734490525155, 30.594607628267966],
+                style: style,
+                isIntScrollZoom: true,
+                hash: true,
+            }));
+
+            function _createGeometry(a,tb) {
+              var b = a.geometry.coordinates[0],
+                  c = new THREE.Shape(),
+                  d = tb.projectToWorld(b[0]);
+              c.moveTo(d.x, d.y);
+              for (d = 1; d < b.length; d++) {
+                  var e = tb.projectToWorld(b[d]);
+                  c.lineTo(e.x, e.y);
+              }
+              b = {
+                  depth: 2,
+                  bevelEnabled: !1,
+                  material: 0,
+                  extrudeMaterial: 1,
+              };
+              c = new THREE.ExtrudeGeometry(c, b);
+              return c;
+            }
+
+            function _createUvs(a) {
+              a.faceVertexUvs = [[]];
+              for (
+                  var b = [
+                          new THREE.Vector2(1, 0),
+                          new THREE.Vector2(0, 0),
+                          new THREE.Vector2(0, 1),
+                          new THREE.Vector2(1, 1),
+                      ],
+                      c = a.faces.length,
+                      d = 0;
+                  d < c;
+                  d += 2
+              )
+                  if (a.faces[d].normal.z == 0)
+                      (a.faceVertexUvs[0][d] = [b[1], b[0], b[2]]),
+                          (a.faceVertexUvs[0][d + 1] = [b[0], b[3], b[2]]);
+                  else {
+                      var e = a.vertices[a.faces[d].a],
+                          f = a.vertices[a.faces[d].b],
+                          g = a.vertices[a.faces[d].c];
+                      a.faceVertexUvs[0][d] = [
+                          new THREE.Vector2(e.x, e.y),
+                          new THREE.Vector2(f.x, f.y),
+                          new THREE.Vector2(g.x, g.y),
+                      ];
+                      e = a.vertices[a.faces[d + 1].a];
+                      f = a.vertices[a.faces[d + 1].b];
+                      g = a.vertices[a.faces[d + 1].c];
+                      a.faceVertexUvs[0][d + 1] = [
+                          new THREE.Vector2(e.x, e.y),
+                          new THREE.Vector2(f.x, f.y),
+                          new THREE.Vector2(g.x, g.y),
+                      ];
+                  }
+              return a;
+            }
+
+var data=[
+        {"type":"Feature","properties":{"level":1,"name":"中国邮政储蓄银行（湖北省分行营业部）","height":280,"base_height":0,"color":"#ddd"},"geometry":{"type":"Polygon","coordinates":[[[114.26730001377071,30.595149654035424],[114.26737510423808,30.594983416111138],[114.26728930608508,30.594946561374197],[114.26731076201405,30.59488191979089],[114.26717133751096,30.594845110133267],[114.26709624642238,30.59501134779343],[114.26717132160428,30.595029748326304],[114.26713914030533,30.595094398742066],[114.26707478473918,30.59514061236826],[114.26699970846724,30.59513144350006],[114.26698898951582,30.59505759734068],[114.26678520845394,30.595048535449614],[114.26677447111632,30.595187022721653],[114.26687099882221,30.59519617428873],[114.26687099245959,30.595270029320062],[114.26707477280914,30.595279090587976],[114.26730001377071,30.595149654035424]]]}},
+        {"type":"Feature","properties":{"level":1,"name":"凯盟大厦","height":30,"base_height":0,"color":"#ddd"},"geometry":{"type":"Polygon","coordinates":[[[114.26804014434877,30.59393963131797],[114.268050873183,30.59389346186711],[114.2680723228841,30.593893443111675],[114.26807232367943,30.593884211092995],[114.26800798326931,30.593782715043524],[114.26798653351257,30.59378273375209],[114.26798653351257,30.59378273375209],[114.26777203890069,30.59373675981695],[114.26775058416766,30.59379217054334],[114.26792217935898,30.593838181945106],[114.26793290347216,30.59384740463971],[114.26795435247995,30.593856617992756],[114.26797579908315,30.593893527388122],[114.26797579669712,30.593921223438407],[114.26798652078709,30.593930446104824],[114.26793288358859,30.594078204914656],[114.26779346180174,30.594050629883768],[114.26773982498072,30.594189156154734],[114.26793287006767,30.594235148758642],[114.26799723453291,30.59405968485938],[114.26804014434877,30.59393963131797]]]}},
+        {"type":"Feature","properties":{"level":1,"name":"天下·国际公馆","height":80,"base_height":0,"color":"#b0c4de","side_texture":'../../images/building3.png'},"geometry":{"type":"Polygon","coordinates":[[[114.26934845937154,30.59490781536552],[114.26933774779835,30.5947601144835],[114.26881224988759,30.594779055829616],[114.26881223716111,30.594926766522196],[114.26934845937154,30.59490781536552]]]}}
+    ]
+
+            map.on("style.load", function () {
+                var tb;
+                map.addLayer({
+                    id: "custom_layer",
+                    type: "custom",
+                    onAdd: function (map, mbxContext) {
+                        tb = new Threebox(map, mbxContext, {
+                            defaultLights: true,
+                        });
+
+                        for (
+                            var a = new THREE.Geometry(),
+                                b = new THREE.MeshPhongMaterial({
+                                    color: new THREE.Color("#ddd"),
+                                    opacity: 0.8,
+                                    transparent: !0,
+                                }),
+                                c = 0;
+                            c < data.length;
+                            c++
+                        ) {
+                            var d = _createGeometry(data[c],tb);
+                            a.merge(d);
+                        }
+                        a = new THREE.Mesh(a, b);
+                       // tb.add(a);
+                        for (var a = 0; a < data.length; a++) {
+                              var b = data[a],
+                                  c = "",
+                                  d = "",
+                                  e = new THREE.MeshPhongMaterial({
+                                      color: new THREE.Color("#eee"),
+                                      opacity: 0.8,
+                                      transparent: !0,
+                                  });
+                               c = e.clone();
+                               d = e.clone()
+                                  // ? ((d = this._createTexture(d)),
+                                  //   this.wrapmode === "repeat"
+                                  //       ? ((d.wrapS = d.wrapT = THREE.RepeatWrapping),
+                                  //         (f = this.getFaceTextureRepeat(b).split(",")),
+                                  //         d.repeat.set(f[0], f[1]))
+                                  //       : (d.wrapS = d.wrapT = THREE.ClampToEdgeWrapping),
+                                  //   (d = new THREE.MeshPhongMaterial({
+                                  //       map: d,
+                                  //       opacity: this.opacity,
+                                  //       transparent: !0,
+                                  //   })))
+                                  // : (d = e.clone());
+                              e = _createGeometry(b,tb);
+                              e = _createUvs(e);
+                              c = new THREE.Mesh(e, [c, d]);
+                              tb.add(c);
+                          }
+
+                    },
+
+                    render: function (gl, matrix) {
+                        tb.update();
+                    },
+                });
+            });
+        </script>
+    </body>
+</html>

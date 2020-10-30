@@ -10,77 +10,58 @@
             margin: 0;
             height: 100%;
         }
+        #marker {
+background-image: url('https://docs.mapbox.com/mapbox-gl-js/assets/washington-monument.jpg');
+background-size: cover;
+width: 50px;
+height: 50px;
+border-radius: 50%;
+cursor: pointer;
+}
+ 
     </style>
 </head>
 
 <body>
 <div id='map'></div>
-<!-- <script src='./style.js'></script> -->
- <script src="http://61.177.139.228:38080/developsite/GeoLMap/dist/mapbox/MAP_STYLE.WX.js"></script>
-<script src='/dist/mapbox-gl-dev.js'></script>
+<script src='./style_rg.js'></script>
+ <!-- <script src="http://61.177.139.228:38080/developsite/GeoLMap/dist/mapbox/MAP_STYLE.WX.js"></script> -->
+<script src='/dist/mapbox-gl.js'></script>
+<script src='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.0.9/mapbox-gl-draw.js'></script>
+<link rel='stylesheet' href='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.0.9/mapbox-gl-draw.css' type='text/css'/>
 <script>
 
 var map = window.map = new mapboxgl.Map({
     container: 'map',
     zoom: 14,
-    center: [120.3080177,31.555],
+    center: [120.560608657820,32.276182],
     style: style,
-    crs:'EPSG:4490',
     isIntScrollZoom:true,
     hash: true
 });
-
+var draw = new MapboxDraw({
+displayControlsDefault: false,
+controls: {
+polygon: true,
+trash: true
+}
+});
+map.addControl(draw);
 
 map.on("load", function() {
-        var width = 64; // The image will be 64 pixels square
-        var bytesPerPixel = 4; // Each pixel is represented by 4 bytes: red, green, blue, and alpha.
-        var data = new Uint8Array(width * width * bytesPerPixel);
-
-        for (var x = 0; x < width; x++) {
-          for (var y = 0; y < width; y++) {
-            var offset = (y * width + x) * bytesPerPixel;
-            data[offset + 0] = (y / width) * 255; // red
-            data[offset + 1] = (x / width) * 255; // green
-            data[offset + 2] = 128; // blue
-            data[offset + 3] = 255; // alpha
-          }
-        }
-
-        map.addImage("gradient", { width: width, height: width, data: data });
-        map.setPaintProperty(
-                  '3d-buildings',
-                    'fill-extrusion-color',
-                    '#236ca6'
-                );
-        map.setPaintProperty(
-                    '3d-buildings',
-                    // 颜色强化强度（正负表示强化关系，正值顶部强化，负值底部强化）
-                    'fill-extrusion-intensity',
-                    -5
-                );
-              
-        map.addLayer({
-          id: "points",
-          type: "symbol",
-          source: {
-            type: "geojson",
-            data: {
-              type: "FeatureCollection",
-              features: [
-                {
-                  type: "Feature",
-                  geometry: {
-                    type: "Point",
-                    coordinates: [120.57, 32.385858]
-                  }
-                }
-              ]
-            }
-          },
-          layout: {
-            "icon-image": "gradient"
-          }
-        });
+        // create the popup
+var popup = new mapboxgl.Popup({ offset: 25 })
+.setText('Construction on the Washington Monument began in 1848.');
+ 
+// create DOM element for the marker
+var el = document.createElement('div');
+el.id = 'marker';
+ 
+// create the marker
+new mapboxgl.Marker(el)
+.setLngLat([120.3080177,31.555])
+.setPopup(popup) // sets a popup on this marker
+.addTo(map);
       });
 
 </script>
