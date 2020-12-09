@@ -1,5 +1,5 @@
 {
-  "name": "@cgcs2000/mapbox-gl",
+  "name": "@tommy2gis/swsk-mapbox-gl",
   "description": "A WebGL interactive maps library",
   "version": "1.13.0",
   "main": "dist/mapbox-gl.js",
@@ -7,7 +7,7 @@
   "license": "SEE LICENSE IN LICENSE.txt",
   "repository": {
     "type": "git",
-    "url": "git://github.com/cgcs2000/mapbox-gl-js.git"
+    "url": "git://github.com/tommy2gis/mapbox-gl-js.git"
   },
   "engines": {
     "node": ">=6.4.0"
@@ -20,25 +20,28 @@
     "@mapbox/geojson-rewind": "^0.5.0",
     "@mapbox/geojson-types": "^1.0.2",
     "@mapbox/jsonlint-lines-primitives": "^2.0.2",
-    "@mapbox/mapbox-gl-supported": "^1.5.0",
+    "@mapbox/mapbox-gl-supported": "^1.4.0",
     "@mapbox/point-geometry": "^0.1.0",
-    "@mapbox/tiny-sdf": "^1.1.1",
+    "@mapbox/tiny-sdf": "^1.1.0",
     "@mapbox/unitbezier": "^0.0.0",
-    "csscolorparser": "~1.0.3",
+    "@mapbox/whoots-js": "^3.1.0",
+    "@shitao1988/swsk-geojson-vt": "^3.2.3",
+    "@shitao1988/swsk-whoots-js": "^3.1.1",
+    "@tommy2gis/swsk-vector-tile": "^1.3.5",
+    "csscolorparser": "~1.0.2",
     "earcut": "^2.2.2",
-    "gl-matrix": "^3.2.1",
+    "gl-matrix": "^3.0.0",
     "grid-index": "^1.1.0",
-    "minimist": "^1.2.5",
+    "minimist": "0.0.8",
     "murmurhash-js": "^1.0.0",
     "pbf": "^3.2.1",
     "potpack": "^1.0.1",
     "quickselect": "^2.0.0",
     "rw": "^1.3.3",
-    "tinyqueue": "^2.0.3",
+    "tinyqueue": "^2.0.0",
     "vt-pbf": "^3.1.1"
   },
   "devDependencies": {
-    "@babel/core": "^7.9.0",
     "@mapbox/flow-remove-types": "^1.3.0-await.upstream.2",
     "@mapbox/gazetteer": "^4.0.4",
     "@mapbox/mapbox-gl-rtl-text": "^0.2.1",
@@ -47,9 +50,8 @@
     "@rollup/plugin-strip": "^1.3.1",
     "address": "^1.1.2",
     "babel-eslint": "^10.0.1",
-    "babelify": "^10.0.0",
     "benchmark": "^2.1.4",
-    "browserify": "^16.5.0",
+    "browserify": "^16.2.3",
     "canvas": "^2.6.1",
     "chalk": "^3.0.0",
     "chokidar": "^3.0.2",
@@ -109,10 +111,10 @@
     "stylelint": "^9.10.1",
     "stylelint-config-standard": "^18.2.0",
     "tap": "~12.4.1",
-    "tap-parser": "^10.0.1",
-    "tape": "^4.13.2",
+    "tap-parser": "^9.3.3",
+    "tape": "^4.11.0",
     "tape-filter": "^1.0.4",
-    "testem": "^3.0.0"
+    "testem": "^2.17.0"
   },
   "browser": {
     "./src/shaders/index.js": "./src/shaders/shaders.js",

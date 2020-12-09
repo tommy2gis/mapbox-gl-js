@@ -29,32 +29,32 @@ export class CanonicalTileID {
     }
 
     // given a list of urls, choose a url template and return a tile URL
-    url(urls: Array<string>, scheme: ?string, zoomOffset: ?number) {
-        const bbox = getTileBBox(this.x, this.y, this.z,'EPSG:4490');
+    url(urls: Array<string>, scheme: ?string, zoomOffset: ?number, crs: ?string) {
+        const bbox = getTileBBox(this.x, this.y, this.z,crs);
         const quadkey = getQuadkey(this.z, this.x, this.y);
 
         var padLeft_ = function(num, val) {
             return (new Array(num).join('0') + val).slice(-num);
          };
-
-        var shift = (this.z-1) / 2;
+        var z=this.z+(zoomOffset||0);
+        var shift = z / 2;
 		var half = 2 << shift;
 		var digits = 1;
 		if (half > 10)
             digits = parseInt(Math.log(half)/Math.log(10)) + 1;
-        var y=Math.pow(2, this.z-1) - this.y - 1;
+        var y=Math.pow(2, z) - this.y - 1;
 		var halfx = parseInt(this.x / half);
 		var halfy = parseInt(y / half);
-
+        
         return urls[(this.x + this.y) % urls.length]
             .replace('{prefix}', (this.x % 16).toString(16) + (this.y % 16).toString(16))
             .replace('{x_y}',String(padLeft_(2*digits,this.x)+"_"+padLeft_(2*digits,y)))
             .replace('{dir_x_y}',String(padLeft_(digits,halfx)+"_"+padLeft_(digits,halfy)))
-            .replace('{z}', String(this.z + (zoomOffset || 0)))
+            .replace('{z}', String(z))
             .replace('{x}', String(this.x))
             .replace('{y}', String(scheme === 'tms' ? (this.z === 0 ? 0 : (Math.pow(2, this.z - 1) - 1 - this.y)) : this.y))
             .replace('{quadkey}', quadkey)
-            .replace('{bbox-epsg-4490}', bbox);
+            .replace(crs?'{bbox-epsg-4490}':'{bbox-epsg-3857}', bbox);
     }
 
     getTilePoint(coord: MercatorCoordinate) {

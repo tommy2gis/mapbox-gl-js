@@ -4,33 +4,28 @@
     "version": {
       "required": true,
       "type": "enum",
-      "values": [
-        8
-      ],
-      "doc": "Style specification version number. Must be 8.",
+      "values": [8],
+      "doc": "样式规范版本号。 必须为 8。",
       "example": 8
     },
     "name": {
       "type": "string",
-      "doc": "A human-readable name for the style.",
+      "doc": "样式名称.",
       "example": "Bright"
     },
     "metadata": {
       "type": "*",
-      "doc": "Arbitrary properties useful to track with the stylesheet, but do not influence rendering. Properties should be prefixed to avoid collisions, like 'mapbox:'."
+      "doc": "关于样式表的任意属性信息，但不对渲染过程产生影响。这些属性应该添加前缀以避免冲突，例如 'mapbox:'。"
     },
     "center": {
       "type": "array",
       "value": "number",
-      "doc": "Default map center in longitude and latitude.  The style center will be used only if the map has not been positioned by other means (e.g. map options or user interaction).",
-      "example": [
-        -73.9749,
-        40.7736
-      ]
+      "doc": "地图默认的中心经度和纬度。这个中心点只有在地图没有被其他方法定位时（例如地图设置或用户交互）才生效。",
+      "example": [-73.9749, 40.7736]
     },
     "zoom": {
       "type": "number",
-      "doc": "Default zoom level.  The style zoom will be used only if the map has not been positioned by other means (e.g. map options or user interaction).",
+      "doc": "默认缩放级别。这个缩放级别只有在地图没有被其他方法定位时（例如地图设置或用户交互）才生效。",
       "example": 12.5
     },
     "bearing": {
@@ -38,14 +33,14 @@
       "default": 0,
       "period": 360,
       "units": "degrees",
-      "doc": "Default bearing, in degrees. The bearing is the compass direction that is \"up\"; for example, a bearing of 90° orients the map so that east is up. This value will be used only if the map has not been positioned by other means (e.g. map options or user interaction).",
+      "doc": "默认方位角，沿顺时针偏离真北方向的夹角。这个方位角只有在地图没有被其他方法定位时（例如地图设置或用户交互）才生效。",
       "example": 29
     },
     "pitch": {
       "type": "number",
       "default": 0,
       "units": "degrees",
-      "doc": "Default pitch, in degrees. Zero is perpendicular to the surface, for a look straight down at the map, while a greater value like 60 looks ahead towards the horizon. The style pitch will be used only if the map has not been positioned by other means (e.g. map options or user interaction).",
+      "doc": "默认倾斜角度。0 代表垂直于地面，即垂直俯视地图，更大的值例如 60 可以眺望到地平线。这个倾斜角度只有在地图没有被其他方法定位时（例如地图设置或用户交互）才生效。",
       "example": 50
     },
     "light": {
@@ -60,7 +55,7 @@
     "sources": {
       "required": true,
       "type": "sources",
-      "doc": "Data source specifications.",
+      "doc": "数据源说明。",
       "example": {
         "mapbox-streets": {
           "type": "vector",
@@ -70,17 +65,17 @@
     },
     "sprite": {
       "type": "string",
-      "doc": "A base URL for retrieving the sprite image and metadata. The extensions `.png`, `.json` and scale factor `@2x.png` will be automatically appended. This property is required if any layer uses the `background-pattern`, `fill-pattern`, `line-pattern`, `fill-extrusion-pattern`, or `icon-image` properties. The URL must be absolute, containing the [scheme, authority and path components](https://en.wikipedia.org/wiki/URL#Syntax).",
+      "doc": "获取雪碧图及其元数据的基础 URL。扩展名后缀 `.png`、`.json`、以及缩放因子 `@2x.png` 会被自动添加。当有图层使用了 `background-pattern`、`fill-pattern`、`line-pattern`、或`icon-image` 属性时，此属性必须设置。",
       "example": "mapbox://sprites/mapbox/bright-v8"
     },
     "glyphs": {
       "type": "string",
-      "doc": "A URL template for loading signed-distance-field glyph sets in PBF format. The URL must include `{fontstack}` and `{range}` tokens. This property is required if any layer uses the `text-field` layout property. The URL must be absolute, containing the [scheme, authority and path components](https://en.wikipedia.org/wiki/URL#Syntax).",
+      "doc": "获取以有向距离场编码的 PBF 字形文件的 URL 模板。URL 必须包含 `{fontstack}` 和 `{range}` 占位符。当有图层使用了 `text-field` 布局属性时，此属性必须设置。",
       "example": "mapbox://fonts/mapbox/{fontstack}/{range}.pbf"
     },
     "transition": {
       "type": "transition",
-      "doc": "A global transition definition to use as a default across properties, to be used for timing transitions between one value and the next when no property-specific transition is set. Collision-based symbol fading is controlled independently of the style's `transition` property.",
+      "doc": "全局的过渡动画属性，用来作为各种属性变化时的默认设置。",
       "example": {
         "duration": 300,
         "delay": 0
@@ -90,7 +85,7 @@
       "required": true,
       "type": "array",
       "value": "layer",
-      "doc": "Layers will be drawn in the order of this array.",
+      "doc": "图层将按照此数组依次绘制。",
       "example": [
         {
           "id": "water",
@@ -107,7 +102,7 @@
   "sources": {
     "*": {
       "type": "source",
-      "doc": "Specification of a data source. For vector and raster sources, either TileJSON or a URL to a TileJSON must be provided. For image and video sources, a URL must be provided. For GeoJSON sources, a URL or inline GeoJSON must be provided."
+      "doc": "数据源说明。对于矢量和栅格数据源，必须提供 TileJSON 或者指向 TileJSON 的 URL。对于图片和视频数据源，必须提供 URL。对于 GeoJSON 数据源，必须提供 URL 或内联的 GeoJSON。"
     }
   },
   "source": [
@@ -142,12 +137,7 @@
       "type": "array",
       "value": "number",
       "length": 4,
-      "default": [
-        -180,
-        -85.051129,
-        180,
-        85.051129
-      ],
+      "default": [-180, -85.051129, 180, 85.051129],
       "doc": "An array containing the longitude and latitude of the southwest and northeast corners of the source's bounding box in the following order: `[sw.lng, sw.lat, ne.lng, ne.lat]`. When this property is included in a source, no tiles outside of the given bounds are requested by Mapbox GL."
     },
     "scheme": {
@@ -211,44 +201,39 @@
           "doc": "A raster tile source."
         }
       },
-      "doc": "The type of the source."
+      "doc": "瓦片数据源的类型。"
     },
     "url": {
       "type": "string",
-      "doc": "A URL to a TileJSON resource. Supported protocols are `http:`, `https:`, and `mapbox://<Tileset ID>`."
+      "doc": "指向 TileJSON 的 URL。支持的协议有 `http:`、`https:`、 以及 `mapbox://<mapid>`。"
     },
     "tiles": {
       "type": "array",
       "value": "string",
-      "doc": "An array of one or more tile source URLs, as in the TileJSON spec."
+      "doc": "包含一个或多个瓦片数据源的 URL，见 TileJSON 规范"
     },
     "bounds": {
       "type": "array",
       "value": "number",
       "length": 4,
-      "default": [
-        -180,
-        -85.051129,
-        180,
-        85.051129
-      ],
+      "default": [-180, -85.051129, 180, 85.051129],
       "doc": "An array containing the longitude and latitude of the southwest and northeast corners of the source's bounding box in the following order: `[sw.lng, sw.lat, ne.lng, ne.lat]`. When this property is included in a source, no tiles outside of the given bounds are requested by Mapbox GL."
     },
     "minzoom": {
       "type": "number",
       "default": 0,
-      "doc": "Minimum zoom level for which tiles are available, as in the TileJSON spec."
+      "doc": "瓦片源的最小缩放级别，见 TileJSON 规范。"
     },
     "maxzoom": {
       "type": "number",
       "default": 22,
-      "doc": "Maximum zoom level for which tiles are available, as in the TileJSON spec. Data from tiles at the maxzoom are used when displaying the map at higher zoom levels."
+      "doc": "瓦片源的最大缩放级别，见 TileJSON 规范。当显示更高缩放级别的地图时，会使用此级别的数据。"
     },
     "tileSize": {
       "type": "number",
       "default": 512,
       "units": "pixels",
-      "doc": "The minimum visual size to display tiles for this layer. Only configurable for raster layers."
+      "doc": "图层中显示瓦片的最小尺寸。仅对栅格图层有效"
     },
     "scheme": {
       "type": "enum",
@@ -285,7 +270,7 @@
     },
     "*": {
       "type": "*",
-      "doc": "Other keys to configure the data source."
+      "doc": "其他数据源相关设置项。"
     }
   },
   "source_raster_dem": {
@@ -312,12 +297,7 @@
       "type": "array",
       "value": "number",
       "length": 4,
-      "default": [
-        -180,
-        -85.051129,
-        180,
-        85.051129
-      ],
+      "default": [-180, -85.051129, 180, 85.051129],
       "doc": "An array containing the longitude and latitude of the southwest and northeast corners of the source's bounding box in the following order: `[sw.lng, sw.lat, ne.lng, ne.lat]`. When this property is included in a source, no tiles outside of the given bounds are requested by Mapbox GL."
     },
     "minzoom": {
@@ -380,14 +360,14 @@
       "type": "enum",
       "values": {
         "geojson": {
-          "doc": "A GeoJSON data source."
+            "doc": "GeoJSON 数据源。"
         }
       },
-      "doc": "The data type of the GeoJSON source."
+      "doc": "GeoJSON 数据源的数据类型。"
     },
     "data": {
       "type": "*",
-      "doc": "A URL to a GeoJSON file, or inline GeoJSON."
+      "doc": "链接到 GeoJSON 文件的 URL，或者内联的 GeoJSON。"
     },
     "maxzoom": {
       "type": "number",
@@ -408,7 +388,7 @@
       "default": 128,
       "maximum": 512,
       "minimum": 0,
-      "doc": "Size of the tile buffer on each side. A value of 0 produces no buffer. A value of 512 produces a buffer as wide as the tile itself. Larger values produce fewer rendering artifacts near tile edges and slower performance."
+      "doc": "瓦片边界上的缓冲区大小。0 表示无缓冲区。512 表示缓冲区与瓦片本身一样宽。值越大在瓦片边缘上生成的符号冲突越少，但是意味着性能降低。"
     },
     "filter": {
       "type": "*",
@@ -417,18 +397,18 @@
     "tolerance": {
       "type": "number",
       "default": 0.375,
-      "doc": "Douglas-Peucker simplification tolerance (higher means simpler geometries and faster performance)."
+      "doc": "Douglas-Peucker 化简容差（值越大，几何要素化简程度越高，渲染性能也更好）。"
     },
     "cluster": {
       "type": "boolean",
       "default": false,
-      "doc": "If the data is a collection of point features, setting this to true clusters the points by radius into groups. Cluster groups become new `Point` features in the source with additional properties:\n * `cluster` Is `true` if the point is a cluster \n * `cluster_id` A unqiue id for the cluster to be used in conjunction with the [cluster inspection methods](https://www.mapbox.com/mapbox-gl-js/api/#geojsonsource#getclusterexpansionzoom)\n * `point_count` Number of original points grouped into this cluster\n * `point_count_abbreviated` An abbreviated point count"
+      "doc": "如果数据是点数据集，设置 true 将会按照聚类半径进行聚类。"
     },
     "clusterRadius": {
       "type": "number",
       "default": 50,
       "minimum": 0,
-      "doc": "Radius of each cluster if clustering is enabled. A value of 512 indicates a radius equal to the width of a tile."
+      "doc": "聚类半径。512 表示聚类半径等于瓦片宽度。"
     },
     "clusterMaxZoom": {
       "type": "number",
@@ -467,27 +447,27 @@
       "type": "enum",
       "values": {
         "video": {
-          "doc": "A video data source."
+            "doc": "视频数据源。"
         }
       },
-      "doc": "The data type of the video source."
+      "doc": "视频数据源的数据类型。"
     },
     "urls": {
       "required": true,
       "type": "array",
       "value": "string",
-      "doc": "URLs to video content in order of preferred format."
+      "doc": "指向视频内容的URL，按照格式优先级排列。"
     },
     "coordinates": {
       "required": true,
-      "doc": "Corners of video specified in longitude, latitude pairs.",
+      "doc": "视频的四角的经纬度坐标。",
       "type": "array",
       "length": 4,
       "value": {
         "type": "array",
         "length": 2,
         "value": "number",
-        "doc": "A single longitude, latitude pair."
+        "doc": "单个经纬度坐标对。"
       }
     }
   },
@@ -497,40 +477,40 @@
       "type": "enum",
       "values": {
         "image": {
-          "doc": "An image data source."
+            "doc": "图片数据源。"
         }
       },
-      "doc": "The data type of the image source."
+      "doc": "图片数据源的数据类型。"
     },
     "url": {
       "required": true,
       "type": "string",
-      "doc": "URL that points to an image."
+      "doc": "指向图片的 URL。"
     },
     "coordinates": {
       "required": true,
-      "doc": "Corners of image specified in longitude, latitude pairs.",
+      "doc": "图片的四角的经纬度坐标。",
       "type": "array",
       "length": 4,
       "value": {
         "type": "array",
         "length": 2,
         "value": "number",
-        "doc": "A single longitude, latitude pair."
+        "doc": "单个经纬度坐标对。"
       }
     }
   },
   "layer": {
     "id": {
       "type": "string",
-      "doc": "Unique layer name.",
+      "doc": "全局唯一的图层名称。",
       "required": true
     },
     "type": {
       "type": "enum",
       "values": {
         "fill": {
-          "doc": "A filled polygon with an optional stroked border.",
+          "doc": "可填充的多边形，可带描边。",
           "sdk-support": {
             "basic functionality": {
               "js": "0.10.0",
@@ -541,7 +521,7 @@
           }
         },
         "line": {
-          "doc": "A stroked line.",
+          "doc": "绘制线",
           "sdk-support": {
             "basic functionality": {
               "js": "0.10.0",
@@ -552,7 +532,7 @@
           }
         },
         "symbol": {
-          "doc": "An icon or a text label.",
+          "doc": "图标或者文本标注",
           "sdk-support": {
             "basic functionality": {
               "js": "0.10.0",
@@ -563,7 +543,7 @@
           }
         },
         "circle": {
-          "doc": "A filled circle.",
+          "doc": "可填充的圆。",
           "sdk-support": {
             "basic functionality": {
               "js": "0.10.0",
@@ -596,7 +576,7 @@
           }
         },
         "raster": {
-          "doc": "Raster map textures such as satellite imagery.",
+          "doc": "栅格地图例如卫星影像",
           "sdk-support": {
             "basic functionality": {
               "js": "0.10.0",
@@ -618,7 +598,7 @@
           }
         },
         "background": {
-          "doc": "The background color or pattern of the map.",
+          "doc": "地图的背景色或者填充图案",
           "sdk-support": {
             "basic functionality": {
               "js": "0.10.0",
@@ -629,44 +609,44 @@
           }
         }
       },
-      "doc": "Rendering type of this layer.",
+      "doc": "图层的渲染类型。",
       "required": true
     },
     "metadata": {
       "type": "*",
-      "doc": "Arbitrary properties useful to track with the layer, but do not influence rendering. Properties should be prefixed to avoid collisions, like 'mapbox:'."
+      "doc": "关于图层的任意属性信息，但不对渲染过程产生影响。这些属性应该添加前缀以避免冲突，例如 'mapbox:'。"
     },
     "source": {
       "type": "string",
-      "doc": "Name of a source description to be used for this layer. Required for all layer types except `background`."
+      "doc": "图层的数据源。"
     },
     "source-layer": {
       "type": "string",
-      "doc": "Layer to use from a vector tile source. Required for vector tile sources; prohibited for all other source types, including GeoJSON sources."
+      "doc": "矢量瓦片数据源的图层。当数据源支持多个图层时，此属性是必需的。"
     },
     "minzoom": {
       "type": "number",
       "minimum": 0,
       "maximum": 24,
-      "doc": "The minimum zoom level for the layer. At zoom levels less than the minzoom, the layer will be hidden."
+      "doc": "图层进行解析并显示的最小缩放级别。"
     },
     "maxzoom": {
       "type": "number",
       "minimum": 0,
       "maximum": 24,
-      "doc": "The maximum zoom level for the layer. At zoom levels equal to or greater than the maxzoom, the layer will be hidden."
+      "doc": "图层进行解析并显示的最大缩放级别。"
     },
     "filter": {
       "type": "filter",
-      "doc": "A expression specifying conditions on source features. Only features that match the filter are displayed. Zoom expressions in filters are only evaluated at integer zoom levels. The `feature-state` expression is not supported in filter expressions."
+      "doc": "指明数据源上要素的过滤条件的表达式。只有符合过滤条件的要素才被显示。"
     },
     "layout": {
       "type": "layout",
-      "doc": "Layout properties for the layer."
+      "doc": "图层的布局属性。"
     },
     "paint": {
       "type": "paint",
-      "doc": "Default paint properties for this layer."
+      "doc": "图层的默认绘制属性。"
     }
   },
   "layout": [
@@ -683,16 +663,18 @@
   "layout_background": {
     "visibility": {
       "type": "enum",
+      "function": "piecewise-constant",
+      "zoom-function": true,
       "values": {
         "visible": {
-          "doc": "The layer is shown."
+            "doc": "显示此图层。"
         },
         "none": {
-          "doc": "The layer is not shown."
+            "doc": "不显示此图层。"
         }
       },
       "default": "visible",
-      "doc": "Whether this layer is displayed.",
+      "doc": "是否显示此图层。",
       "sdk-support": {
         "basic functionality": {
           "js": "0.10.0",
@@ -724,25 +706,24 @@
       },
       "expression": {
         "interpolated": false,
-        "parameters": [
-          "zoom",
-          "feature"
-        ]
+        "parameters": ["zoom", "feature"]
       },
       "property-type": "data-driven"
     },
     "visibility": {
       "type": "enum",
+      "function": "piecewise-constant",
+      "zoom-function": true,
       "values": {
         "visible": {
-          "doc": "The layer is shown."
+            "doc": "显示此图层。"
         },
         "none": {
-          "doc": "The layer is not shown."
+            "doc": "不显示此图层。"
         }
       },
       "default": "visible",
-      "doc": "Whether this layer is displayed.",
+      "doc": "是否显示此图层。",
       "sdk-support": {
         "basic functionality": {
           "js": "0.10.0",
@@ -774,25 +755,24 @@
       },
       "expression": {
         "interpolated": false,
-        "parameters": [
-          "zoom",
-          "feature"
-        ]
+        "parameters": ["zoom", "feature"]
       },
       "property-type": "data-driven"
     },
     "visibility": {
       "type": "enum",
+      "function": "piecewise-constant",
+      "zoom-function": true,
       "values": {
         "visible": {
-          "doc": "The layer is shown."
+            "doc": "显示此图层。"
         },
         "none": {
-          "doc": "The layer is not shown."
+            "doc": "不显示此图层。"
         }
       },
       "default": "visible",
-      "doc": "Whether this layer is displayed.",
+      "doc": "是否显示此图层。",
       "sdk-support": {
         "basic functionality": {
           "js": "0.10.0",
@@ -855,19 +835,22 @@
   "layout_line": {
     "line-cap": {
       "type": "enum",
+      "function": "piecewise-constant",
+      "zoom-function": true,
+      "property-function": true,
       "values": {
         "butt": {
-          "doc": "A cap with a squared-off end which is drawn to the exact endpoint of the line."
+          "doc": "方型末端，仅绘制到直线端点。"
         },
         "round": {
-          "doc": "A cap with a rounded end which is drawn beyond the endpoint of the line at a radius of one-half of the line's width and centered on the endpoint of the line."
+          "doc": "圆型末端，以线宽的 1/2 为半径，以线端点为圆心，超出线端点绘制。"
         },
         "square": {
-          "doc": "A cap with a squared-off end which is drawn beyond the endpoint of the line at a distance of one-half of the line's width."
+          "doc": "方型末端，以线宽的 1/2 长度超出线端点绘制。"
         }
       },
       "default": "butt",
-      "doc": "The display of line endings.",
+      "doc": "线末端的显示样式。",
       "sdk-support": {
         "basic functionality": {
           "js": "0.10.0",
@@ -878,23 +861,24 @@
       },
       "expression": {
         "interpolated": false,
-        "parameters": [
-          "zoom"
-        ]
+        "parameters": ["zoom"]
       },
       "property-type": "data-constant"
     },
     "line-join": {
       "type": "enum",
+      "function": "piecewise-constant",
+      "zoom-function": true,
+      "property-function": true,
       "values": {
         "bevel": {
-          "doc": "A join with a squared-off end which is drawn beyond the endpoint of the line at a distance of one-half of the line's width."
+          "doc": "方型交点，以线宽的 1/2 长度超出交点绘制。"
         },
         "round": {
-          "doc": "A join with a rounded end which is drawn beyond the endpoint of the line at a radius of one-half of the line's width and centered on the endpoint of the line."
+          "doc": "圆型交点，以线宽的 1/2 为半径，以交点为圆心绘制，超出交点绘制。"
         },
         "miter": {
-          "doc": "A join with a sharp, angled corner which is drawn with the outer sides beyond the endpoint of the path until they meet."
+          "doc": "尖型交角，以两线段外沿相交，超出交点绘制。"
         }
       },
       "default": "miter",
@@ -915,17 +899,14 @@
       },
       "expression": {
         "interpolated": false,
-        "parameters": [
-          "zoom",
-          "feature"
-        ]
+        "parameters": ["zoom", "feature"]
       },
       "property-type": "data-driven"
     },
     "line-miter-limit": {
       "type": "number",
       "default": 2,
-      "doc": "Used to automatically convert miter joins to bevel joins for sharp angles.",
+      "doc": "用来将锐利的尖型交角自动地转换为方型交角。",
       "requires": [
         {
           "line-join": "miter"
@@ -941,16 +922,15 @@
       },
       "expression": {
         "interpolated": true,
-        "parameters": [
-          "zoom"
-        ]
+        "parameters": ["zoom"]
       },
       "property-type": "data-constant"
     },
     "line-round-limit": {
       "type": "number",
       "default": 1.05,
-      "doc": "Used to automatically convert round joins to miter joins for shallow angles.",
+
+      "doc": "用来将平浅的圆型交角自动地转换为尖型交角。",
       "requires": [
         {
           "line-join": "round"
@@ -966,9 +946,7 @@
       },
       "expression": {
         "interpolated": true,
-        "parameters": [
-          "zoom"
-        ]
+        "parameters": ["zoom"]
       },
       "property-type": "data-constant"
     },
@@ -991,25 +969,24 @@
       },
       "expression": {
         "interpolated": false,
-        "parameters": [
-          "zoom",
-          "feature"
-        ]
+        "parameters": ["zoom", "feature"]
       },
       "property-type": "data-driven"
     },
     "visibility": {
       "type": "enum",
+      "function": "piecewise-constant",
+      "zoom-function": true,
       "values": {
         "visible": {
-          "doc": "The layer is shown."
+            "doc": "显示此图层。"
         },
         "none": {
-          "doc": "The layer is not shown."
+            "doc": "不显示此图层。"
         }
       },
       "default": "visible",
-      "doc": "Whether this layer is displayed.",
+      "doc": "是否显示此图层。",
       "sdk-support": {
         "basic functionality": {
           "js": "0.10.0",
@@ -1026,17 +1003,17 @@
       "type": "enum",
       "values": {
         "point": {
-          "doc": "The label is placed at the point where the geometry is located."
+          "doc": "标注在几何要素的点位上"
         },
         "line": {
-          "doc": "The label is placed along the line of the geometry. Can only be used on `LineString` and `Polygon` geometries."
+          "doc": "标注在几何要素的边线上。只能用在 `LineString` 和 `Polygon` 要素上"
         },
         "line-center": {
           "doc": "The label is placed at the center of the line of the geometry. Can only be used on `LineString` and `Polygon` geometries. Note that a single feature in a vector tile may contain multiple line geometries."
         }
       },
       "default": "point",
-      "doc": "Label placement relative to its geometry.",
+      "doc": "注记相对于几何要素的位置。",
       "sdk-support": {
         "basic functionality": {
           "js": "0.10.0",
@@ -1053,9 +1030,7 @@
       },
       "expression": {
         "interpolated": false,
-        "parameters": [
-          "zoom"
-        ]
+        "parameters": ["zoom"]
       },
       "property-type": "data-constant"
     },
@@ -1064,7 +1039,7 @@
       "default": 250,
       "minimum": 1,
       "units": "pixels",
-      "doc": "Distance between two symbol anchors.",
+      "doc": "两个注记锚点之间的距离",
       "requires": [
         {
           "symbol-placement": "line"
@@ -1080,16 +1055,14 @@
       },
       "expression": {
         "interpolated": true,
-        "parameters": [
-          "zoom"
-        ]
+        "parameters": ["zoom"]
       },
       "property-type": "data-constant"
     },
     "symbol-avoid-edges": {
       "type": "boolean",
       "default": false,
-      "doc": "If true, the symbols will not cross tile edges to avoid mutual collisions. Recommended in layers that don't have enough padding in the vector tile to prevent collisions, or if it is a point symbol layer placed after a line symbol layer. When using a client that supports global collision detection, like Mapbox GL JS version 0.42.0 or greater, enabling this property is not needed to prevent clipped labels at tile boundaries.",
+      "doc": "设置为 true 时，注记不会跨瓦片边缘，以避免相互冲突。当图层的矢量瓦片没有足够的缓冲区以避免冲突，或者一个点注记图层在一个线注记图层之上时，推荐开启此设置。",
       "sdk-support": {
         "basic functionality": {
           "js": "0.10.0",
@@ -1100,9 +1073,7 @@
       },
       "expression": {
         "interpolated": false,
-        "parameters": [
-          "zoom"
-        ]
+        "parameters": ["zoom"]
       },
       "property-type": "data-constant"
     },
@@ -1125,10 +1096,7 @@
       },
       "expression": {
         "interpolated": false,
-        "parameters": [
-          "zoom",
-          "feature"
-        ]
+        "parameters": ["zoom", "feature"]
       },
       "property-type": "data-driven"
     },
@@ -1157,19 +1125,15 @@
       },
       "expression": {
         "interpolated": false,
-        "parameters": [
-          "zoom"
-        ]
+        "parameters": ["zoom"]
       },
       "property-type": "data-constant"
     },
     "icon-allow-overlap": {
       "type": "boolean",
       "default": false,
-      "doc": "If true, the icon will be visible even if it collides with other previously drawn symbols.",
-      "requires": [
-        "icon-image"
-      ],
+      "doc": "设置为 true 时，图标符号即使碰撞到其他绘制的注记也会显示。",
+      "requires": ["icon-image"],
       "sdk-support": {
         "basic functionality": {
           "js": "0.10.0",
@@ -1180,19 +1144,15 @@
       },
       "expression": {
         "interpolated": false,
-        "parameters": [
-          "zoom"
-        ]
+        "parameters": ["zoom"]
       },
       "property-type": "data-constant"
     },
     "icon-ignore-placement": {
       "type": "boolean",
       "default": false,
-      "doc": "If true, other symbols can be visible even if they collide with the icon.",
-      "requires": [
-        "icon-image"
-      ],
+      "doc": "设置为 true 时，其他注记即使碰撞到此图标符号也会显示",
+      "requires": ["icon-image"],
       "sdk-support": {
         "basic functionality": {
           "js": "0.10.0",
@@ -1203,20 +1163,15 @@
       },
       "expression": {
         "interpolated": false,
-        "parameters": [
-          "zoom"
-        ]
+        "parameters": ["zoom"]
       },
       "property-type": "data-constant"
     },
     "icon-optional": {
       "type": "boolean",
       "default": false,
-      "doc": "If true, text will display without their corresponding icons when the icon collides with other symbols and the text does not.",
-      "requires": [
-        "icon-image",
-        "text-field"
-      ],
+      "doc": "设置为 true 时，当此注记的图标与其他注记碰撞而文本未碰撞时，仅显示此注记的文本而不显示图标。",
+      "requires": ["icon-image", "text-field"],
       "sdk-support": {
         "basic functionality": {
           "js": "0.10.0",
@@ -1227,9 +1182,7 @@
       },
       "expression": {
         "interpolated": false,
-        "parameters": [
-          "zoom"
-        ]
+        "parameters": ["zoom"]
       },
       "property-type": "data-constant"
     },
@@ -1237,17 +1190,17 @@
       "type": "enum",
       "values": {
         "map": {
-          "doc": "When `symbol-placement` is set to `point`, aligns icons east-west. When `symbol-placement` is set to `line` or `line-center`, aligns icon x-axes with the line."
+            "doc": "当 `symbol-placement` 设置为 `point` 时，将图标与东西方向对齐。当 `symbol-placement` 设置为 `line` 时，将图标的 x 轴与线对齐。"
         },
         "viewport": {
-          "doc": "Produces icons whose x-axes are aligned with the x-axis of the viewport, regardless of the value of `symbol-placement`."
+            "doc": "将图标的 x 轴与视窗的 x 轴对齐，无论 `symbol-placement` 设置为哪个值。"
         },
         "auto": {
-          "doc": "When `symbol-placement` is set to `point`, this is equivalent to `viewport`. When `symbol-placement` is set to `line` or `line-center`, this is equivalent to `map`."
+            "doc": "当 `symbol-placement` 设置为 `point` 时，与 `viewport` 行为一致。当 `symbol-placement` 设置为 `line` 时，与 `map` 行为一致。"
         }
       },
       "default": "auto",
-      "doc": "In combination with `symbol-placement`, determines the rotation behavior of icons.",
+      "doc": "与 `symbol-placement` 组合使用，决定旋转时图标的行为。",
       "requires": [
         "icon-image"
       ],
@@ -1267,9 +1220,7 @@
       },
       "expression": {
         "interpolated": false,
-        "parameters": [
-          "zoom"
-        ]
+        "parameters": ["zoom"]
       },
       "property-type": "data-constant"
     },
@@ -1278,10 +1229,8 @@
       "default": 1,
       "minimum": 0,
       "units": "factor of the original icon size",
-      "doc": "Scales the original size of the icon by the provided factor. The new pixel size of the image will be the original pixel size multiplied by `icon-size`. 1 is the original size; 3 triples the size of the image.",
-      "requires": [
-        "icon-image"
-      ],
+      "doc": "图标的缩放因子。1 表示原始大小，3 表示三倍大小",
+      "requires": ["icon-image"],
       "sdk-support": {
         "basic functionality": {
           "js": "0.10.0",
@@ -1298,10 +1247,7 @@
       },
       "expression": {
         "interpolated": true,
-        "parameters": [
-          "zoom",
-          "feature"
-        ]
+        "parameters": ["zoom", "feature"]
       },
       "property-type": "data-driven"
     },
@@ -1309,20 +1255,20 @@
       "type": "enum",
       "values": {
         "none": {
-          "doc": "The icon is displayed at its intrinsic aspect ratio."
+            "doc": "图标按其本身的比例进行显示。"
         },
         "width": {
-          "doc": "The icon is scaled in the x-dimension to fit the width of the text."
+            "doc": "图标在 x 轴进行缩放以匹配文本的宽度。"
         },
         "height": {
-          "doc": "The icon is scaled in the y-dimension to fit the height of the text."
+            "doc": "图标在 y 轴进行缩放以匹配文本的高度。"
         },
         "both": {
-          "doc": "The icon is scaled in both x- and y-dimensions."
+            "doc": "图标在 x 轴与 y 轴都进行缩放。"
         }
       },
       "default": "none",
-      "doc": "Scales the icon to fit around the associated text.",
+      "doc": "缩放图标以与文本相匹配。",
       "requires": [
         "icon-image",
         "text-field"
@@ -1343,9 +1289,7 @@
       },
       "expression": {
         "interpolated": false,
-        "parameters": [
-          "zoom"
-        ]
+        "parameters": ["zoom"]
       },
       "property-type": "data-constant"
     },
@@ -1353,23 +1297,14 @@
       "type": "array",
       "value": "number",
       "length": 4,
-      "default": [
-        0,
-        0,
-        0,
-        0
-      ],
+      "default": [0, 0, 0, 0],
       "units": "pixels",
-      "doc": "Size of the additional area added to dimensions determined by `icon-text-fit`, in clockwise order: top, right, bottom, left.",
+      "doc": "根据 `icon-text-fit` 确定的图标尺寸添加额外的间隔，以上-右-下-左的顺时针顺序设置。",
       "requires": [
         "icon-image",
         "text-field",
         {
-          "icon-text-fit": [
-            "both",
-            "width",
-            "height"
-          ]
+          "icon-text-fit": ["both", "width", "height"]
         }
       ],
       "sdk-support": {
@@ -1382,15 +1317,13 @@
       },
       "expression": {
         "interpolated": true,
-        "parameters": [
-          "zoom"
-        ]
+        "parameters": ["zoom"]
       },
       "property-type": "data-constant"
     },
     "icon-image": {
       "type": "resolvedImage",
-      "doc": "Name of image in sprite to use for drawing an image background.",
+      "doc": "替换 {} 的字符串，引用拉取的图标资源。",
       "tokens": true,
       "sdk-support": {
         "basic functionality": {
@@ -1408,10 +1341,7 @@
       },
       "expression": {
         "interpolated": false,
-        "parameters": [
-          "zoom",
-          "feature"
-        ]
+        "parameters": ["zoom", "feature"]
       },
       "property-type": "data-driven"
     },
@@ -1421,9 +1351,7 @@
       "period": 360,
       "units": "degrees",
       "doc": "Rotates the icon clockwise.",
-      "requires": [
-        "icon-image"
-      ],
+      "requires": ["icon-image"],
       "sdk-support": {
         "basic functionality": {
           "js": "0.10.0",
@@ -1440,10 +1368,7 @@
       },
       "expression": {
         "interpolated": true,
-        "parameters": [
-          "zoom",
-          "feature"
-        ]
+        "parameters": ["zoom", "feature"]
       },
       "property-type": "data-driven"
     },
@@ -1452,10 +1377,8 @@
       "default": 2,
       "minimum": 0,
       "units": "pixels",
-      "doc": "Size of the additional area around the icon bounding box used for detecting symbol collisions.",
-      "requires": [
-        "icon-image"
-      ],
+      "doc": "包围在图标 bbox 外的额外空间，用以检测注记碰撞。",
+      "requires": ["icon-image"],
       "sdk-support": {
         "basic functionality": {
           "js": "0.10.0",
@@ -1466,26 +1389,21 @@
       },
       "expression": {
         "interpolated": true,
-        "parameters": [
-          "zoom"
-        ]
+        "parameters": ["zoom"]
       },
       "property-type": "data-constant"
     },
     "icon-keep-upright": {
       "type": "boolean",
       "default": false,
-      "doc": "If true, the icon may be flipped to prevent it from being rendered upside-down.",
+      "doc": "如果设置为 true，图标可以被翻转以避免图标上下颠倒",
       "requires": [
         "icon-image",
         {
           "icon-rotation-alignment": "map"
         },
         {
-          "symbol-placement": [
-            "line",
-            "line-center"
-          ]
+          "symbol-placement": ["line", "line-center"]
         }
       ],
       "sdk-support": {
@@ -1498,9 +1416,7 @@
       },
       "expression": {
         "interpolated": false,
-        "parameters": [
-          "zoom"
-        ]
+        "parameters": ["zoom"]
       },
       "property-type": "data-constant"
     },
@@ -1508,14 +1424,9 @@
       "type": "array",
       "value": "number",
       "length": 2,
-      "default": [
-        0,
-        0
-      ],
-      "doc": "Offset distance of icon from its anchor. Positive values indicate right and down, while negative values indicate left and up. Each component is multiplied by the value of `icon-size` to obtain the final offset in pixels. When combined with `icon-rotate` the offset will be as if the rotated direction was up.",
-      "requires": [
-        "icon-image"
-      ],
+      "default": [0, 0],
+      "doc": "图标与其锚点的偏移量。正值表示向右和下偏移，负值表示向左和上偏移。",
+      "requires": ["icon-image"],
       "sdk-support": {
         "basic functionality": {
           "js": "0.10.0",
@@ -1532,10 +1443,7 @@
       },
       "expression": {
         "interpolated": true,
-        "parameters": [
-          "zoom",
-          "feature"
-        ]
+        "parameters": ["zoom", "feature"]
       },
       "property-type": "data-driven"
     },
@@ -1572,9 +1480,7 @@
       },
       "default": "center",
       "doc": "Part of the icon placed closest to the anchor.",
-      "requires": [
-        "icon-image"
-      ],
+      "requires": ["icon-image"],
       "sdk-support": {
         "basic functionality": {
           "js": "0.40.0",
@@ -1591,10 +1497,7 @@
       },
       "expression": {
         "interpolated": false,
-        "parameters": [
-          "zoom",
-          "feature"
-        ]
+        "parameters": ["zoom", "feature"]
       },
       "property-type": "data-driven"
     },
@@ -1613,9 +1516,7 @@
       },
       "default": "auto",
       "doc": "Orientation of icon when map is pitched.",
-      "requires": [
-        "icon-image"
-      ],
+      "requires": ["icon-image"],
       "sdk-support": {
         "basic functionality": {
           "js": "0.39.0",
@@ -1626,9 +1527,7 @@
       },
       "expression": {
         "interpolated": false,
-        "parameters": [
-          "zoom"
-        ]
+        "parameters": ["zoom"]
       },
       "property-type": "data-constant"
     },
@@ -1636,17 +1535,17 @@
       "type": "enum",
       "values": {
         "map": {
-          "doc": "The text is aligned to the plane of the map."
+            "doc": "文本与地图平面对齐。"
         },
         "viewport": {
-          "doc": "The text is aligned to the plane of the viewport."
+            "doc": "文本与视窗平面对齐。"
         },
         "auto": {
-          "doc": "Automatically matches the value of `text-rotation-alignment`."
+            "doc": "自动地与 `text-rotation-alignment` 设置相匹配。"
         }
       },
       "default": "auto",
-      "doc": "Orientation of text when map is pitched.",
+      "doc": "当地图倾斜时文本的方向。",
       "requires": [
         "text-field"
       ],
@@ -1666,9 +1565,7 @@
       },
       "expression": {
         "interpolated": false,
-        "parameters": [
-          "zoom"
-        ]
+        "parameters": ["zoom"]
       },
       "property-type": "data-constant"
     },
@@ -1676,17 +1573,17 @@
       "type": "enum",
       "values": {
         "map": {
-          "doc": "When `symbol-placement` is set to `point`, aligns text east-west. When `symbol-placement` is set to `line` or `line-center`, aligns text x-axes with the line."
+            "doc": "当 `symbol-placement` 设置为 `point` 时，将文本与东西方向对齐。当 `symbol-placement` 设置为 `line` 时，将文本的 x 轴与线对齐。"
         },
         "viewport": {
-          "doc": "Produces glyphs whose x-axes are aligned with the x-axis of the viewport, regardless of the value of `symbol-placement`."
+            "doc": "将字型的 x 轴与视窗的 x 轴对齐，无论 `symbol-placement` 设置为哪个值。"
         },
         "auto": {
-          "doc": "When `symbol-placement` is set to `point`, this is equivalent to `viewport`. When `symbol-placement` is set to `line` or `line-center`, this is equivalent to `map`."
+            "doc": "当 `symbol-placement` 设置为 `point` 时，与 `viewport` 行为一致。当 `symbol-placement` 设置为 `line` 时，与 `map` 行为一致。"
         }
       },
       "default": "auto",
-      "doc": "In combination with `symbol-placement`, determines the rotation behavior of the individual glyphs forming the text.",
+      "doc": "与 `symbol-placement` 结合使用，确定构成文本的单个字型的旋转行为。",
       "requires": [
         "text-field"
       ],
@@ -1706,9 +1603,7 @@
       },
       "expression": {
         "interpolated": false,
-        "parameters": [
-          "zoom"
-        ]
+        "parameters": ["zoom"]
       },
       "property-type": "data-constant"
     },
@@ -1716,7 +1611,7 @@
       "type": "formatted",
       "default": "",
       "tokens": true,
-      "doc": "Value to use for a text label. If a plain `string` is provided, it will be treated as a `formatted` with default/inherited formatting options.",
+      "doc": "用来作为文本标注的字段。用 {field_name} 指示使用要素的哪个字段。",
       "sdk-support": {
         "basic functionality": {
           "js": "0.10.0",
@@ -1733,24 +1628,16 @@
       },
       "expression": {
         "interpolated": false,
-        "parameters": [
-          "zoom",
-          "feature"
-        ]
+        "parameters": ["zoom", "feature"]
       },
       "property-type": "data-driven"
     },
     "text-font": {
       "type": "array",
       "value": "string",
-      "default": [
-        "Open Sans Regular",
-        "Arial Unicode MS Regular"
-      ],
-      "doc": "Font stack to use for displaying text.",
-      "requires": [
-        "text-field"
-      ],
+      "default": ["Open Sans Regular", "Arial Unicode MS Regular"],
+      "doc": "显示文本的字栈。",
+      "requires": ["text-field"],
       "sdk-support": {
         "basic functionality": {
           "js": "0.10.0",
@@ -1767,10 +1654,7 @@
       },
       "expression": {
         "interpolated": false,
-        "parameters": [
-          "zoom",
-          "feature"
-        ]
+        "parameters": ["zoom", "feature"]
       },
       "property-type": "data-driven"
     },
@@ -1779,10 +1663,8 @@
       "default": 16,
       "minimum": 0,
       "units": "pixels",
-      "doc": "Font size.",
-      "requires": [
-        "text-field"
-      ],
+      "doc": "字体大小",
+      "requires": ["text-field"],
       "sdk-support": {
         "basic functionality": {
           "js": "0.10.0",
@@ -1799,10 +1681,7 @@
       },
       "expression": {
         "interpolated": true,
-        "parameters": [
-          "zoom",
-          "feature"
-        ]
+        "parameters": ["zoom", "feature"]
       },
       "property-type": "data-driven"
     },
@@ -1811,10 +1690,8 @@
       "default": 10,
       "minimum": 0,
       "units": "ems",
-      "doc": "The maximum line width for text wrapping.",
-      "requires": [
-        "text-field"
-      ],
+      "doc": "文本折行的最大行度。",
+      "requires": ["text-field"],
       "sdk-support": {
         "basic functionality": {
           "js": "0.10.0",
@@ -1831,10 +1708,7 @@
       },
       "expression": {
         "interpolated": true,
-        "parameters": [
-          "zoom",
-          "feature"
-        ]
+        "parameters": ["zoom", "feature"]
       },
       "property-type": "data-driven"
     },
@@ -1842,10 +1716,8 @@
       "type": "number",
       "default": 1.2,
       "units": "ems",
-      "doc": "Text leading value for multi-line text.",
-      "requires": [
-        "text-field"
-      ],
+      "doc": "多行文本的行高",
+      "requires": ["text-field"],
       "sdk-support": {
         "basic functionality": {
           "js": "0.10.0",
@@ -1856,9 +1728,7 @@
       },
       "expression": {
         "interpolated": true,
-        "parameters": [
-          "zoom"
-        ]
+        "parameters": ["zoom"]
       },
       "property-type": "data-constant"
     },
@@ -1866,10 +1736,8 @@
       "type": "number",
       "default": 0,
       "units": "ems",
-      "doc": "Text tracking amount.",
-      "requires": [
-        "text-field"
-      ],
+      "doc": "字符间距。",
+      "requires": ["text-field"],
       "sdk-support": {
         "basic functionality": {
           "js": "0.10.0",
@@ -1886,10 +1754,7 @@
       },
       "expression": {
         "interpolated": true,
-        "parameters": [
-          "zoom",
-          "feature"
-        ]
+        "parameters": ["zoom", "feature"]
       },
       "property-type": "data-driven"
     },
@@ -1903,14 +1768,14 @@
           "doc": "The text is aligned to the left."
         },
         "center": {
-          "doc": "The text is centered."
+            "doc": "文本居中。"
         },
         "right": {
-          "doc": "The text is aligned to the right."
+            "doc": "文本右对齐。"
         }
       },
       "default": "center",
-      "doc": "Text justification options.",
+      "doc": "文本对齐选项。",
       "requires": [
         "text-field"
       ],
@@ -1936,10 +1801,7 @@
       },
       "expression": {
         "interpolated": false,
-        "parameters": [
-          "zoom",
-          "feature"
-        ]
+        "parameters": ["zoom", "feature"]
       },
       "property-type": "data-driven"
     },
@@ -1962,16 +1824,11 @@
           "macos": "0.14.0"
         }
       },
-      "requires": [
-        "text-field"
-      ],
+      "requires": ["text-field"],
       "property-type": "data-driven",
       "expression": {
         "interpolated": true,
-        "parameters": [
-          "zoom",
-          "feature"
-        ]
+        "parameters": ["zoom", "feature"]
       }
     },
     "text-variable-anchor": {
@@ -2009,9 +1866,7 @@
       "requires": [
         "text-field",
         {
-          "symbol-placement": [
-            "point"
-          ]
+          "symbol-placement": ["point"]
         }
       ],
       "doc": "To increase the chance of placing high-priority labels on the map, you can provide an array of `text-anchor` locations: the renderer will attempt to place the label at each location, in order, before moving onto the next label. Use `text-justify: auto` to choose justification based on anchor position. To apply an offset, use the `text-radial-offset` or the two-dimensional `text-offset`.",
@@ -2025,9 +1880,7 @@
       },
       "expression": {
         "interpolated": false,
-        "parameters": [
-          "zoom"
-        ]
+        "parameters": ["zoom"]
       },
       "property-type": "data-constant"
     },
@@ -2035,35 +1888,35 @@
       "type": "enum",
       "values": {
         "center": {
-          "doc": "The center of the text is placed closest to the anchor."
+            "doc": "文本中心停靠到锚点。"
         },
         "left": {
-          "doc": "The left side of the text is placed closest to the anchor."
+            "doc": "文本左边停靠到锚点。"
         },
         "right": {
-          "doc": "The right side of the text is placed closest to the anchor."
+            "doc": "文本右边停靠到锚点。"
         },
         "top": {
-          "doc": "The top of the text is placed closest to the anchor."
+            "doc": "文本顶部停靠到锚点。"
         },
         "bottom": {
-          "doc": "The bottom of the text is placed closest to the anchor."
+            "doc": "文本底部停靠到锚点。"
         },
         "top-left": {
-          "doc": "The top left corner of the text is placed closest to the anchor."
+            "doc": "文本的左上角停靠到锚点。"
         },
         "top-right": {
-          "doc": "The top right corner of the text is placed closest to the anchor."
+            "doc": "文本的右上角停靠到锚点。"
         },
         "bottom-left": {
-          "doc": "The bottom left corner of the text is placed closest to the anchor."
+            "doc": "文本的左下角停靠到锚点。"
         },
         "bottom-right": {
-          "doc": "The bottom right corner of the text is placed closest to the anchor."
+            "doc": "文本的右下角停靠到锚点。"
         }
       },
       "default": "center",
-      "doc": "Part of the text placed closest to the anchor.",
+      "doc": "文本停靠到锚点的部分",
       "requires": [
         "text-field",
         {
@@ -2086,10 +1939,7 @@
       },
       "expression": {
         "interpolated": false,
-        "parameters": [
-          "zoom",
-          "feature"
-        ]
+        "parameters": ["zoom", "feature"]
       },
       "property-type": "data-driven"
     },
@@ -2097,14 +1947,11 @@
       "type": "number",
       "default": 45,
       "units": "degrees",
-      "doc": "Maximum angle change between adjacent characters.",
+      "doc": "相邻字符的最大夹角。",
       "requires": [
         "text-field",
         {
-          "symbol-placement": [
-            "line",
-            "line-center"
-          ]
+          "symbol-placement": ["line", "line-center"]
         }
       ],
       "sdk-support": {
@@ -2117,9 +1964,7 @@
       },
       "expression": {
         "interpolated": true,
-        "parameters": [
-          "zoom"
-        ]
+        "parameters": ["zoom"]
       },
       "property-type": "data-constant"
     },
@@ -2138,9 +1983,7 @@
       "requires": [
         "text-field",
         {
-          "symbol-placement": [
-            "point"
-          ]
+          "symbol-placement": ["point"]
         }
       ],
       "sdk-support": {
@@ -2153,9 +1996,7 @@
       },
       "expression": {
         "interpolated": false,
-        "parameters": [
-          "zoom"
-        ]
+        "parameters": ["zoom"]
       },
       "property-type": "data-constant"
     },
@@ -2164,10 +2005,8 @@
       "default": 0,
       "period": 360,
       "units": "degrees",
-      "doc": "Rotates the text clockwise.",
-      "requires": [
-        "text-field"
-      ],
+      "doc": "顺时针旋转文本的角度。",
+      "requires": ["text-field"],
       "sdk-support": {
         "basic functionality": {
           "js": "0.10.0",
@@ -2184,10 +2023,7 @@
       },
       "expression": {
         "interpolated": true,
-        "parameters": [
-          "zoom",
-          "feature"
-        ]
+        "parameters": ["zoom", "feature"]
       },
       "property-type": "data-driven"
     },
@@ -2196,10 +2032,8 @@
       "default": 2,
       "minimum": 0,
       "units": "pixels",
-      "doc": "Size of the additional area around the text bounding box used for detecting symbol collisions.",
-      "requires": [
-        "text-field"
-      ],
+      "doc": "文本框四周的额外空间，用以检测注记碰撞。",
+      "requires": ["text-field"],
       "sdk-support": {
         "basic functionality": {
           "js": "0.10.0",
@@ -2210,26 +2044,21 @@
       },
       "expression": {
         "interpolated": true,
-        "parameters": [
-          "zoom"
-        ]
+        "parameters": ["zoom"]
       },
       "property-type": "data-constant"
     },
     "text-keep-upright": {
       "type": "boolean",
       "default": true,
-      "doc": "If true, the text may be flipped vertically to prevent it from being rendered upside-down.",
+      "doc": "如果设置为 true，文本可以被翻转以避免图标上下颠倒。",
       "requires": [
         "text-field",
         {
           "text-rotation-alignment": "map"
         },
         {
-          "symbol-placement": [
-            "line",
-            "line-center"
-          ]
+          "symbol-placement": ["line", "line-center"]
         }
       ],
       "sdk-support": {
@@ -2242,9 +2071,7 @@
       },
       "expression": {
         "interpolated": false,
-        "parameters": [
-          "zoom"
-        ]
+        "parameters": ["zoom"]
       },
       "property-type": "data-constant"
     },
@@ -2252,17 +2079,17 @@
       "type": "enum",
       "values": {
         "none": {
-          "doc": "The text is not altered."
+            "doc": "文本保持不变。"
         },
         "uppercase": {
-          "doc": "Forces all letters to be displayed in uppercase."
+            "doc": "强制使所有的字符大写。"
         },
         "lowercase": {
-          "doc": "Forces all letters to be displayed in lowercase."
+            "doc": "强制使所有的字符小写。"
         }
       },
       "default": "none",
-      "doc": "Specifies how to capitalize text, similar to the CSS `text-transform` property.",
+      "doc": "设置文本的大小写，类似于 CSS 的 `text-transform` 属性。",
       "requires": [
         "text-field"
       ],
@@ -2282,23 +2109,17 @@
       },
       "expression": {
         "interpolated": false,
-        "parameters": [
-          "zoom",
-          "feature"
-        ]
+        "parameters": ["zoom", "feature"]
       },
       "property-type": "data-driven"
     },
     "text-offset": {
       "type": "array",
-      "doc": "Offset distance of text from its anchor. Positive values indicate right and down, while negative values indicate left and up. If used with text-variable-anchor, input values will be taken as absolute values. Offsets along the x- and y-axis will be applied automatically based on the anchor position.",
+      "doc": "文本与其锚点的偏移量。正值表示向右和下偏移，负值表示向左和上偏移。",
       "value": "number",
       "units": "ems",
       "length": 2,
-      "default": [
-        0,
-        0
-      ],
+      "default": [0, 0],
       "requires": [
         "text-field",
         {
@@ -2321,20 +2142,15 @@
       },
       "expression": {
         "interpolated": true,
-        "parameters": [
-          "zoom",
-          "feature"
-        ]
+        "parameters": ["zoom", "feature"]
       },
       "property-type": "data-driven"
     },
     "text-allow-overlap": {
       "type": "boolean",
       "default": false,
-      "doc": "If true, the text will be visible even if it collides with other previously drawn symbols.",
-      "requires": [
-        "text-field"
-      ],
+      "doc": "设置为 true 时，文本标注即使碰撞到其他绘制的注记也会显示。",
+      "requires": ["text-field"],
       "sdk-support": {
         "basic functionality": {
           "js": "0.10.0",
@@ -2345,19 +2161,15 @@
       },
       "expression": {
         "interpolated": false,
-        "parameters": [
-          "zoom"
-        ]
+        "parameters": ["zoom"]
       },
       "property-type": "data-constant"
     },
     "text-ignore-placement": {
       "type": "boolean",
       "default": false,
-      "doc": "If true, other symbols can be visible even if they collide with the text.",
-      "requires": [
-        "text-field"
-      ],
+      "doc": "设置为 true 时，其他注记即使碰撞到此文本标注也会显示。",
+      "requires": ["text-field"],
       "sdk-support": {
         "basic functionality": {
           "js": "0.10.0",
@@ -2368,20 +2180,15 @@
       },
       "expression": {
         "interpolated": false,
-        "parameters": [
-          "zoom"
-        ]
+        "parameters": ["zoom"]
       },
       "property-type": "data-constant"
     },
     "text-optional": {
       "type": "boolean",
       "default": false,
-      "doc": "If true, icons will display without their corresponding text when the text collides with other symbols and the icon does not.",
-      "requires": [
-        "text-field",
-        "icon-image"
-      ],
+      "doc": "设置为 true 时，当此文本注记与其他注记碰撞而图标未碰撞时，仅显示此注记的图标而不显示文本。",
+      "requires": ["text-field", "icon-image"],
       "sdk-support": {
         "basic functionality": {
           "js": "0.10.0",
@@ -2392,9 +2199,7 @@
       },
       "expression": {
         "interpolated": false,
-        "parameters": [
-          "zoom"
-        ]
+        "parameters": ["zoom"]
       },
       "property-type": "data-constant"
     },
@@ -2402,14 +2207,14 @@
       "type": "enum",
       "values": {
         "visible": {
-          "doc": "The layer is shown."
+            "doc": "显示此图层。"
         },
         "none": {
-          "doc": "The layer is not shown."
+            "doc": "不显示此图层。"
         }
       },
       "default": "visible",
-      "doc": "Whether this layer is displayed.",
+      "doc": "是否显示此图层。",
       "sdk-support": {
         "basic functionality": {
           "js": "0.10.0",
@@ -2426,14 +2231,14 @@
       "type": "enum",
       "values": {
         "visible": {
-          "doc": "The layer is shown."
+            "doc": "显示此图层。"
         },
         "none": {
-          "doc": "The layer is not shown."
+            "doc": "不显示此图层。"
         }
       },
       "default": "visible",
-      "doc": "Whether this layer is displayed.",
+      "doc": "是否显示此图层。",
       "sdk-support": {
         "basic functionality": {
           "js": "0.10.0",
@@ -2472,70 +2277,70 @@
   "filter": {
     "type": "array",
     "value": "*",
-    "doc": "A filter selects specific features from a layer."
+    "doc": "从数据图层中选择特定要素的过滤器。"
   },
   "filter_operator": {
     "type": "enum",
     "values": {
       "==": {
-        "doc": "`[\"==\", key, value]` equality: `feature[key] = value`"
+          "doc": "`[\"==\", key, value]` 相等：`feature[key] = value`"
       },
       "!=": {
-        "doc": "`[\"!=\", key, value]` inequality: `feature[key] ≠ value`"
+          "doc": "`[\"!=\", key, value]` 不相等：`feature[key] ≠ value`"
       },
       ">": {
-        "doc": "`[\">\", key, value]` greater than: `feature[key] > value`"
+          "doc": "`[\">\", key, value]` 大于：`feature[key] > value`"
       },
       ">=": {
-        "doc": "`[\">=\", key, value]` greater than or equal: `feature[key] ≥ value`"
+          "doc": "`[\">=\", key, value]` 大于等于：`feature[key] ≥ value`"
       },
       "<": {
-        "doc": "`[\"<\", key, value]` less than: `feature[key] < value`"
+          "doc": "`[\"<\", key, value]` 小于：`feature[key] < value`"
       },
       "<=": {
-        "doc": "`[\"<=\", key, value]` less than or equal: `feature[key] ≤ value`"
+          "doc": "`[\"<=\", key, value]` 小于等于：`feature[key] ≤ value`"
       },
       "in": {
-        "doc": "`[\"in\", key, v0, ..., vn]` set inclusion: `feature[key] ∈ {v0, ..., vn}`"
+          "doc": "`[\"in\", key, v0, ..., vn]` 包含：`feature[key] ∈ {v0, ..., vn}`"
       },
       "!in": {
-        "doc": "`[\"!in\", key, v0, ..., vn]` set exclusion: `feature[key] ∉ {v0, ..., vn}`"
+          "doc": "`[\"!in\", key, v0, ..., vn]` 不包含：`feature[key] ∉ {v0, ..., vn}`"
       },
       "all": {
-        "doc": "`[\"all\", f0, ..., fn]` logical `AND`: `f0 ∧ ... ∧ fn`"
+          "doc": "`[\"all\", f0, ..., fn]` 逻辑与 `AND`：`f0 ∧ ... ∧ fn`"
       },
       "any": {
-        "doc": "`[\"any\", f0, ..., fn]` logical `OR`: `f0 ∨ ... ∨ fn`"
+          "doc": "`[\"any\", f0, ..., fn]` 逻辑或 `OR`：`f0 ∨ ... ∨ fn`"
       },
       "none": {
-        "doc": "`[\"none\", f0, ..., fn]` logical `NOR`: `¬f0 ∧ ... ∧ ¬fn`"
+          "doc": "`[\"none\", f0, ..., fn]` 逻辑非 `NOR`：`¬f0 ∧ ... ∧ ¬fn`"
       },
       "has": {
-        "doc": "`[\"has\", key]` `feature[key]` exists"
+          "doc": "`[\"has\", key]` `feature[key]` 存在"
       },
       "!has": {
-        "doc": "`[\"!has\", key]` `feature[key]` does not exist"
+        "doc": "`[\"!has\", key]` `feature[key]` 不存在"
       },
       "within": {
         "doc": "`[\"within\", object]` feature geometry is within object geometry"
       }
     },
-    "doc": "The filter operator."
+    "doc": "过滤操作符。"
   },
   "geometry_type": {
     "type": "enum",
     "values": {
       "Point": {
-        "doc": "Filter to point geometries."
+          "doc": "过滤点状几何要素。"
       },
       "LineString": {
-        "doc": "Filter to line geometries."
+          "doc": "过滤线状几何要素。"
       },
       "Polygon": {
-        "doc": "Filter to polygon geometries."
+          "doc": "过滤面状几何要素。"
       }
     },
-    "doc": "The geometry type for the filter to select."
+    "doc": "过滤器所要选择的几何要素类型。"
   },
   "function": {
     "expression": {
@@ -2544,53 +2349,53 @@
     },
     "stops": {
       "type": "array",
-      "doc": "An array of stops.",
+      "doc": "断点数组。",
       "value": "function_stop"
     },
     "base": {
       "type": "number",
       "default": 1,
       "minimum": 0,
-      "doc": "The exponential base of the interpolation curve. It controls the rate at which the result increases. Higher values make the result increase more towards the high end of the range. With `1` the stops are interpolated linearly."
+      "doc": "插值曲线的指数基底。控制断点插值的增长速率。值越大，在靠近上限的一端增长越快。1 表示线性插值。"
     },
     "property": {
       "type": "string",
-      "doc": "The name of a feature property to use as the function input.",
+      "doc": "全局字段或要素字段的名称，用来作为函数的输入。",
       "default": "$zoom"
     },
     "type": {
       "type": "enum",
       "values": {
-        "identity": {
-          "doc": "Return the input value as the output value."
-        },
-        "exponential": {
-          "doc": "Generate an output by interpolating between stops just less than and just greater than the function input."
-        },
-        "interval": {
-          "doc": "Return the output value of the stop just less than the function input."
-        },
-        "categorical": {
-          "doc": "Return the output value of the stop equal to the function input."
-        }
+          "identity": {
+              "doc": "函数的输出与输入相同。"
+          },
+          "exponential": {
+              "doc": "函数在断点间插值的结果稍小于和稍大于函数输入。"
+          },
+          "interval": {
+              "doc": "函数输出的断点值稍小于函数输入。"
+          },
+          "categorical": {
+              "doc": "函数输出的断点值等于函数输入。"
+          }
       },
-      "doc": "The interpolation strategy to use in function evaluation.",
+      "doc": "函数的插值方法。",
       "default": "exponential"
     },
     "colorSpace": {
       "type": "enum",
       "values": {
         "rgb": {
-          "doc": "Use the RGB color space to interpolate color values"
-        },
-        "lab": {
-          "doc": "Use the LAB color space to interpolate color values."
-        },
-        "hcl": {
-          "doc": "Use the HCL color space to interpolate color values, interpolating the Hue, Chroma, and Luminance channels individually."
-        }
+              "doc": "使用 RGB 色彩空间插值颜色值。"
+          },
+          "lab": {
+              "doc": "使用 LAB 色彩空间插值颜色值。"
+          },
+          "hcl": {
+              "doc": "使用 HCL 色彩空间插值颜色值, 分别单独插值色相、浓度、以及明度。"
+          }
       },
-      "doc": "The color space in which colors interpolated. Interpolating colors in perceptual color spaces like LAB and HCL tend to produce color ramps that look more consistent and produce colors that can be differentiated more easily than those interpolated in RGB space.",
+      "doc": "色彩插值的颜色空间。在可认知的色彩空间如 LAB 和 HCL 进行颜色插值产生的色彩过渡比在 RGB 空间上插值更为一致和易区分。",
       "default": "rgb"
     },
     "default": {
@@ -2603,12 +2408,9 @@
     "type": "array",
     "minimum": 0,
     "maximum": 24,
-    "value": [
-      "number",
-      "color"
-    ],
+    "value": ["number", "color"],
     "length": 2,
-    "doc": "Zoom level and value pair."
+    "doc": "缩放级别和值"
   },
   "expression": {
     "type": "array",
@@ -3670,9 +3472,7 @@
       "transition": false,
       "expression": {
         "interpolated": false,
-        "parameters": [
-          "zoom"
-        ]
+        "parameters": ["zoom"]
       },
       "doc": "Whether extruded geometries are lit relative to the map or viewport.",
       "example": "map",
@@ -3687,27 +3487,17 @@
     },
     "position": {
       "type": "array",
-      "default": [
-        1.15,
-        210,
-        30
-      ],
+      "default": [1.15, 210, 30],
       "length": 3,
       "value": "number",
       "property-type": "data-constant",
       "transition": true,
       "expression": {
         "interpolated": true,
-        "parameters": [
-          "zoom"
-        ]
+        "parameters": ["zoom"]
       },
       "doc": "Position of the light source relative to lit (extruded) geometries, in [r radial coordinate, a azimuthal angle, p polar angle] where r indicates the distance from the center of the base of an object to its light, a indicates the position of the light relative to 0° (0° when `light.anchor` is set to `viewport` corresponds to the top of the viewport, or 0° when `light.anchor` is set to `map` corresponds to due north, and degrees proceed clockwise), and p indicates the height of the light (from 0°, directly above, to 180°, directly below).",
-      "example": [
-        1.5,
-        90,
-        80
-      ],
+      "example": [1.5, 90, 80],
       "sdk-support": {
         "basic functionality": {
           "js": "0.27.0",
@@ -3723,9 +3513,7 @@
       "default": "#ffffff",
       "expression": {
         "interpolated": true,
-        "parameters": [
-          "zoom"
-        ]
+        "parameters": ["zoom"]
       },
       "transition": true,
       "doc": "Color tint for lighting extruded geometries.",
@@ -3746,9 +3534,7 @@
       "maximum": 1,
       "expression": {
         "interpolated": true,
-        "parameters": [
-          "zoom"
-        ]
+        "parameters": ["zoom"]
       },
       "transition": true,
       "doc": "Intensity of lighting (on a scale from 0 to 1). Higher numbers will present as more extreme contrast.",
@@ -3788,9 +3574,7 @@
       },
       "expression": {
         "interpolated": false,
-        "parameters": [
-          "zoom"
-        ]
+        "parameters": ["zoom"]
       },
       "property-type": "data-constant"
     },
@@ -3817,11 +3601,7 @@
       },
       "expression": {
         "interpolated": true,
-        "parameters": [
-          "zoom",
-          "feature",
-          "feature-state"
-        ]
+        "parameters": ["zoom", "feature", "feature-state"]
       },
       "property-type": "data-driven"
     },
@@ -3851,11 +3631,45 @@
       },
       "expression": {
         "interpolated": true,
-        "parameters": [
-          "zoom",
-          "feature",
-          "feature-state"
-        ]
+        "parameters": ["zoom", "feature", "feature-state"]
+      },
+      "property-type": "data-driven"
+    },
+    "fill-water": {
+      "type": "enum",
+      "default": "none",
+      "doc": "The color of the filled part of this layer. This color can be specified as `rgba` with an alpha component and the color's opacity will not affect the opacity of the 1px stroke, if it is used.",
+      "transition": true,
+      "requires": [
+        {
+          "!": "fill-pattern"
+        }
+      ],
+      "values": {
+        "water": {
+          "doc": ""
+        },
+        "none": {
+          "doc": ""
+        }
+      },
+      "sdk-support": {
+        "basic functionality": {
+          "js": "0.10.0",
+          "android": "2.0.1",
+          "ios": "2.0.0",
+          "macos": "0.1.0"
+        },
+        "data-driven styling": {
+          "js": "0.19.0",
+          "android": "5.0.0",
+          "ios": "3.5.0",
+          "macos": "0.4.0"
+        }
+      },
+      "expression": {
+        "interpolated": true,
+        "parameters": ["zoom", "feature", "feature-state"]
       },
       "property-type": "data-driven"
     },
@@ -3887,11 +3701,7 @@
       },
       "expression": {
         "interpolated": true,
-        "parameters": [
-          "zoom",
-          "feature",
-          "feature-state"
-        ]
+        "parameters": ["zoom", "feature", "feature-state"]
       },
       "property-type": "data-driven"
     },
@@ -3899,10 +3709,7 @@
       "type": "array",
       "value": "number",
       "length": 2,
-      "default": [
-        0,
-        0
-      ],
+      "default": [0, 0],
       "transition": true,
       "units": "pixels",
       "doc": "The geometry's offset. Values are [x, y] where negatives indicate left and up, respectively.",
@@ -3916,9 +3723,7 @@
       },
       "expression": {
         "interpolated": true,
-        "parameters": [
-          "zoom"
-        ]
+        "parameters": ["zoom"]
       },
       "property-type": "data-constant"
     },
@@ -3934,9 +3739,7 @@
       },
       "doc": "Controls the frame of reference for `fill-translate`.",
       "default": "map",
-      "requires": [
-        "fill-translate"
-      ],
+      "requires": ["fill-translate"],
       "sdk-support": {
         "basic functionality": {
           "js": "0.10.0",
@@ -3947,9 +3750,7 @@
       },
       "expression": {
         "interpolated": false,
-        "parameters": [
-          "zoom"
-        ]
+        "parameters": ["zoom"]
       },
       "property-type": "data-constant"
     },
@@ -3973,10 +3774,7 @@
       },
       "expression": {
         "interpolated": false,
-        "parameters": [
-          "zoom",
-          "feature"
-        ]
+        "parameters": ["zoom", "feature"]
       },
       "property-type": "cross-faded-data-driven"
     }
@@ -3999,9 +3797,7 @@
       },
       "expression": {
         "interpolated": true,
-        "parameters": [
-          "zoom"
-        ]
+        "parameters": ["zoom"]
       },
       "property-type": "data-constant"
     },
@@ -4031,11 +3827,7 @@
       },
       "expression": {
         "interpolated": true,
-        "parameters": [
-          "zoom",
-          "feature",
-          "feature-state"
-        ]
+        "parameters": ["zoom", "feature", "feature-state"]
       },
       "property-type": "data-driven"
     },
@@ -4043,10 +3835,7 @@
       "type": "array",
       "value": "number",
       "length": 2,
-      "default": [
-        0,
-        0
-      ],
+      "default": [0, 0],
       "transition": true,
       "units": "pixels",
       "doc": "The geometry's offset. Values are [x, y] where negatives indicate left and up (on the flat plane), respectively.",
@@ -4060,9 +3849,7 @@
       },
       "expression": {
         "interpolated": true,
-        "parameters": [
-          "zoom"
-        ]
+        "parameters": ["zoom"]
       },
       "property-type": "data-constant"
     },
@@ -4078,9 +3865,7 @@
       },
       "doc": "Controls the frame of reference for `fill-extrusion-translate`.",
       "default": "map",
-      "requires": [
-        "fill-extrusion-translate"
-      ],
+      "requires": ["fill-extrusion-translate"],
       "sdk-support": {
         "basic functionality": {
           "js": "0.27.0",
@@ -4091,9 +3876,7 @@
       },
       "expression": {
         "interpolated": false,
-        "parameters": [
-          "zoom"
-        ]
+        "parameters": ["zoom"]
       },
       "property-type": "data-constant"
     },
@@ -4117,10 +3900,7 @@
       },
       "expression": {
         "interpolated": false,
-        "parameters": [
-          "zoom",
-          "feature"
-        ]
+        "parameters": ["zoom", "feature"]
       },
       "property-type": "cross-faded-data-driven"
     },
@@ -4147,13 +3927,37 @@
       },
       "expression": {
         "interpolated": true,
-        "parameters": [
-          "zoom",
-          "feature",
-          "feature-state"
-        ]
+        "parameters": ["zoom", "feature", "feature-state"]
       },
       "property-type": "data-driven"
+    },
+    "fill-extrusion-intensity": {
+      "type": "number",
+      "default": 1,
+      "transition": true,
+      "expression": {
+        "interpolated": true,
+        "parameters": ["zoom", "feature", "feature-state"]
+      },
+      "property-type": "data-driven"
+    },
+    "fill-extrusion-bottom-color": {
+      "type": "color",
+      "default": "#000000",
+      "transition": true,
+      "requires": [{ "!": "fill-extrusion-pattern" }],
+      "expression": {
+        "interpolated": true,
+        "parameters": ["zoom", "feature", "feature-state"]
+      },
+      "property-type": "data-driven"
+    },
+    "fill-extrusion-pattern-repeat": {
+      "type": "boolean",
+      "default": true,
+      "transition": false,
+      "expression": { "interpolated": false, "parameters": ["zoom"] },
+      "property-type": "data-constant"
     },
     "fill-extrusion-base": {
       "type": "number",
@@ -4162,9 +3966,7 @@
       "units": "meters",
       "doc": "The height with which to extrude the base of this layer. Must be less than or equal to `fill-extrusion-height`.",
       "transition": true,
-      "requires": [
-        "fill-extrusion-height"
-      ],
+      "requires": ["fill-extrusion-height"],
       "sdk-support": {
         "basic functionality": {
           "js": "0.27.0",
@@ -4181,11 +3983,7 @@
       },
       "expression": {
         "interpolated": true,
-        "parameters": [
-          "zoom",
-          "feature",
-          "feature-state"
-        ]
+        "parameters": ["zoom", "feature", "feature-state"]
       },
       "property-type": "data-driven"
     },
@@ -4203,9 +4001,7 @@
       },
       "expression": {
         "interpolated": false,
-        "parameters": [
-          "zoom"
-        ]
+        "parameters": ["zoom"]
       },
       "property-type": "data-constant"
     }
@@ -4234,11 +4030,7 @@
       },
       "expression": {
         "interpolated": true,
-        "parameters": [
-          "zoom",
-          "feature",
-          "feature-state"
-        ]
+        "parameters": ["zoom", "feature", "feature-state"]
       },
       "property-type": "data-driven"
     },
@@ -4268,11 +4060,7 @@
       },
       "expression": {
         "interpolated": true,
-        "parameters": [
-          "zoom",
-          "feature",
-          "feature-state"
-        ]
+        "parameters": ["zoom", "feature", "feature-state"]
       },
       "property-type": "data-driven"
     },
@@ -4280,10 +4068,7 @@
       "type": "array",
       "value": "number",
       "length": 2,
-      "default": [
-        0,
-        0
-      ],
+      "default": [0, 0],
       "transition": true,
       "units": "pixels",
       "doc": "The geometry's offset. Values are [x, y] where negatives indicate left and up, respectively.",
@@ -4297,9 +4082,7 @@
       },
       "expression": {
         "interpolated": true,
-        "parameters": [
-          "zoom"
-        ]
+        "parameters": ["zoom"]
       },
       "property-type": "data-constant"
     },
@@ -4315,9 +4098,7 @@
       },
       "doc": "Controls the frame of reference for `line-translate`.",
       "default": "map",
-      "requires": [
-        "line-translate"
-      ],
+      "requires": ["line-translate"],
       "sdk-support": {
         "basic functionality": {
           "js": "0.10.0",
@@ -4328,9 +4109,7 @@
       },
       "expression": {
         "interpolated": false,
-        "parameters": [
-          "zoom"
-        ]
+        "parameters": ["zoom"]
       },
       "property-type": "data-constant"
     },
@@ -4357,11 +4136,7 @@
       },
       "expression": {
         "interpolated": true,
-        "parameters": [
-          "zoom",
-          "feature",
-          "feature-state"
-        ]
+        "parameters": ["zoom", "feature", "feature-state"]
       },
       "property-type": "data-driven"
     },
@@ -4388,11 +4163,7 @@
       },
       "expression": {
         "interpolated": true,
-        "parameters": [
-          "zoom",
-          "feature",
-          "feature-state"
-        ]
+        "parameters": ["zoom", "feature", "feature-state"]
       },
       "property-type": "data-driven"
     },
@@ -4418,11 +4189,7 @@
       },
       "expression": {
         "interpolated": true,
-        "parameters": [
-          "zoom",
-          "feature",
-          "feature-state"
-        ]
+        "parameters": ["zoom", "feature", "feature-state"]
       },
       "property-type": "data-driven"
     },
@@ -4449,11 +4216,7 @@
       },
       "expression": {
         "interpolated": true,
-        "parameters": [
-          "zoom",
-          "feature",
-          "feature-state"
-        ]
+        "parameters": ["zoom", "feature", "feature-state"]
       },
       "property-type": "data-driven"
     },
@@ -4480,9 +4243,7 @@
       },
       "expression": {
         "interpolated": false,
-        "parameters": [
-          "zoom"
-        ]
+        "parameters": ["zoom"]
       },
       "property-type": "cross-faded"
     },
@@ -4506,10 +4267,7 @@
       },
       "expression": {
         "interpolated": false,
-        "parameters": [
-          "zoom",
-          "feature"
-        ]
+        "parameters": ["zoom", "feature"]
       },
       "property-type": "cross-faded-data-driven"
     },
@@ -4542,9 +4300,7 @@
       },
       "expression": {
         "interpolated": true,
-        "parameters": [
-          "line-progress"
-        ]
+        "parameters": ["line-progress"]
       },
       "property-type": "color-ramp"
     }
@@ -4573,11 +4329,7 @@
       },
       "expression": {
         "interpolated": true,
-        "parameters": [
-          "zoom",
-          "feature",
-          "feature-state"
-        ]
+        "parameters": ["zoom", "feature", "feature-state"]
       },
       "property-type": "data-driven"
     },
@@ -4602,11 +4354,7 @@
       },
       "expression": {
         "interpolated": true,
-        "parameters": [
-          "zoom",
-          "feature",
-          "feature-state"
-        ]
+        "parameters": ["zoom", "feature", "feature-state"]
       },
       "property-type": "data-driven"
     },
@@ -4631,11 +4379,7 @@
       },
       "expression": {
         "interpolated": true,
-        "parameters": [
-          "zoom",
-          "feature",
-          "feature-state"
-        ]
+        "parameters": ["zoom", "feature", "feature-state"]
       },
       "property-type": "data-driven"
     },
@@ -4662,11 +4406,7 @@
       },
       "expression": {
         "interpolated": true,
-        "parameters": [
-          "zoom",
-          "feature",
-          "feature-state"
-        ]
+        "parameters": ["zoom", "feature", "feature-state"]
       },
       "property-type": "data-driven"
     },
@@ -4674,10 +4414,7 @@
       "type": "array",
       "value": "number",
       "length": 2,
-      "default": [
-        0,
-        0
-      ],
+      "default": [0, 0],
       "transition": true,
       "units": "pixels",
       "doc": "The geometry's offset. Values are [x, y] where negatives indicate left and up, respectively.",
@@ -4691,9 +4428,7 @@
       },
       "expression": {
         "interpolated": true,
-        "parameters": [
-          "zoom"
-        ]
+        "parameters": ["zoom"]
       },
       "property-type": "data-constant"
     },
@@ -4709,9 +4444,7 @@
       },
       "doc": "Controls the frame of reference for `circle-translate`.",
       "default": "map",
-      "requires": [
-        "circle-translate"
-      ],
+      "requires": ["circle-translate"],
       "sdk-support": {
         "basic functionality": {
           "js": "0.10.0",
@@ -4722,9 +4455,7 @@
       },
       "expression": {
         "interpolated": false,
-        "parameters": [
-          "zoom"
-        ]
+        "parameters": ["zoom"]
       },
       "property-type": "data-constant"
     },
@@ -4750,9 +4481,7 @@
       },
       "expression": {
         "interpolated": false,
-        "parameters": [
-          "zoom"
-        ]
+        "parameters": ["zoom"]
       },
       "property-type": "data-constant"
     },
@@ -4778,9 +4507,7 @@
       },
       "expression": {
         "interpolated": false,
-        "parameters": [
-          "zoom"
-        ]
+        "parameters": ["zoom"]
       },
       "property-type": "data-constant"
     },
@@ -4807,11 +4534,7 @@
       },
       "expression": {
         "interpolated": true,
-        "parameters": [
-          "zoom",
-          "feature",
-          "feature-state"
-        ]
+        "parameters": ["zoom", "feature", "feature-state"]
       },
       "property-type": "data-driven"
     },
@@ -4836,11 +4559,7 @@
       },
       "expression": {
         "interpolated": true,
-        "parameters": [
-          "zoom",
-          "feature",
-          "feature-state"
-        ]
+        "parameters": ["zoom", "feature", "feature-state"]
       },
       "property-type": "data-driven"
     },
@@ -4867,11 +4586,7 @@
       },
       "expression": {
         "interpolated": true,
-        "parameters": [
-          "zoom",
-          "feature",
-          "feature-state"
-        ]
+        "parameters": ["zoom", "feature", "feature-state"]
       },
       "property-type": "data-driven"
     }
@@ -4900,11 +4615,7 @@
       },
       "expression": {
         "interpolated": true,
-        "parameters": [
-          "zoom",
-          "feature",
-          "feature-state"
-        ]
+        "parameters": ["zoom", "feature", "feature-state"]
       },
       "property-type": "data-driven"
     },
@@ -4930,11 +4641,7 @@
       },
       "expression": {
         "interpolated": true,
-        "parameters": [
-          "zoom",
-          "feature",
-          "feature-state"
-        ]
+        "parameters": ["zoom", "feature", "feature-state"]
       },
       "property-type": "data-driven"
     },
@@ -4954,9 +4661,7 @@
       },
       "expression": {
         "interpolated": true,
-        "parameters": [
-          "zoom"
-        ]
+        "parameters": ["zoom"]
       },
       "property-type": "data-constant"
     },
@@ -4964,12 +4669,8 @@
       "type": "color",
       "default": [
         "interpolate",
-        [
-          "linear"
-        ],
-        [
-          "heatmap-density"
-        ],
+        ["linear"],
+        ["heatmap-density"],
         0,
         "rgba(0, 0, 255, 0)",
         0.1,
@@ -4996,9 +4697,7 @@
       },
       "expression": {
         "interpolated": true,
-        "parameters": [
-          "heatmap-density"
-        ]
+        "parameters": ["heatmap-density"]
       },
       "property-type": "color-ramp"
     },
@@ -5019,9 +4718,7 @@
       },
       "expression": {
         "interpolated": true,
-        "parameters": [
-          "zoom"
-        ]
+        "parameters": ["zoom"]
       },
       "property-type": "data-constant"
     }
@@ -5034,9 +4731,7 @@
       "minimum": 0,
       "maximum": 1,
       "transition": true,
-      "requires": [
-        "icon-image"
-      ],
+      "requires": ["icon-image"],
       "sdk-support": {
         "basic functionality": {
           "js": "0.10.0",
@@ -5053,11 +4748,7 @@
       },
       "expression": {
         "interpolated": true,
-        "parameters": [
-          "zoom",
-          "feature",
-          "feature-state"
-        ]
+        "parameters": ["zoom", "feature", "feature-state"]
       },
       "property-type": "data-driven"
     },
@@ -5066,9 +4757,7 @@
       "default": "#000000",
       "transition": true,
       "doc": "The color of the icon. This can only be used with sdf icons.",
-      "requires": [
-        "icon-image"
-      ],
+      "requires": ["icon-image"],
       "sdk-support": {
         "basic functionality": {
           "js": "0.10.0",
@@ -5085,11 +4774,7 @@
       },
       "expression": {
         "interpolated": true,
-        "parameters": [
-          "zoom",
-          "feature",
-          "feature-state"
-        ]
+        "parameters": ["zoom", "feature", "feature-state"]
       },
       "property-type": "data-driven"
     },
@@ -5098,9 +4783,7 @@
       "default": "rgba(0, 0, 0, 0)",
       "transition": true,
       "doc": "The color of the icon's halo. Icon halos can only be used with SDF icons.",
-      "requires": [
-        "icon-image"
-      ],
+      "requires": ["icon-image"],
       "sdk-support": {
         "basic functionality": {
           "js": "0.10.0",
@@ -5117,11 +4800,7 @@
       },
       "expression": {
         "interpolated": true,
-        "parameters": [
-          "zoom",
-          "feature",
-          "feature-state"
-        ]
+        "parameters": ["zoom", "feature", "feature-state"]
       },
       "property-type": "data-driven"
     },
@@ -5132,9 +4811,7 @@
       "transition": true,
       "units": "pixels",
       "doc": "Distance of halo to the icon outline.",
-      "requires": [
-        "icon-image"
-      ],
+      "requires": ["icon-image"],
       "sdk-support": {
         "basic functionality": {
           "js": "0.10.0",
@@ -5151,11 +4828,7 @@
       },
       "expression": {
         "interpolated": true,
-        "parameters": [
-          "zoom",
-          "feature",
-          "feature-state"
-        ]
+        "parameters": ["zoom", "feature", "feature-state"]
       },
       "property-type": "data-driven"
     },
@@ -5166,9 +4839,7 @@
       "transition": true,
       "units": "pixels",
       "doc": "Fade out the halo towards the outside.",
-      "requires": [
-        "icon-image"
-      ],
+      "requires": ["icon-image"],
       "sdk-support": {
         "basic functionality": {
           "js": "0.10.0",
@@ -5185,11 +4856,7 @@
       },
       "expression": {
         "interpolated": true,
-        "parameters": [
-          "zoom",
-          "feature",
-          "feature-state"
-        ]
+        "parameters": ["zoom", "feature", "feature-state"]
       },
       "property-type": "data-driven"
     },
@@ -5197,16 +4864,11 @@
       "type": "array",
       "value": "number",
       "length": 2,
-      "default": [
-        0,
-        0
-      ],
+      "default": [0, 0],
       "transition": true,
       "units": "pixels",
       "doc": "Distance that the icon's anchor is moved from its original placement. Positive values indicate right and down, while negative values indicate left and up.",
-      "requires": [
-        "icon-image"
-      ],
+      "requires": ["icon-image"],
       "sdk-support": {
         "basic functionality": {
           "js": "0.10.0",
@@ -5217,9 +4879,7 @@
       },
       "expression": {
         "interpolated": true,
-        "parameters": [
-          "zoom"
-        ]
+        "parameters": ["zoom"]
       },
       "property-type": "data-constant"
     },
@@ -5235,10 +4895,7 @@
       },
       "doc": "Controls the frame of reference for `icon-translate`.",
       "default": "map",
-      "requires": [
-        "icon-image",
-        "icon-translate"
-      ],
+      "requires": ["icon-image", "icon-translate"],
       "sdk-support": {
         "basic functionality": {
           "js": "0.10.0",
@@ -5249,9 +4906,7 @@
       },
       "expression": {
         "interpolated": false,
-        "parameters": [
-          "zoom"
-        ]
+        "parameters": ["zoom"]
       },
       "property-type": "data-constant"
     },
@@ -5262,9 +4917,7 @@
       "minimum": 0,
       "maximum": 1,
       "transition": true,
-      "requires": [
-        "text-field"
-      ],
+      "requires": ["text-field"],
       "sdk-support": {
         "basic functionality": {
           "js": "0.10.0",
@@ -5281,11 +4934,7 @@
       },
       "expression": {
         "interpolated": true,
-        "parameters": [
-          "zoom",
-          "feature",
-          "feature-state"
-        ]
+        "parameters": ["zoom", "feature", "feature-state"]
       },
       "property-type": "data-driven"
     },
@@ -5295,9 +4944,7 @@
       "default": "#000000",
       "transition": true,
       "overridable": true,
-      "requires": [
-        "text-field"
-      ],
+      "requires": ["text-field"],
       "sdk-support": {
         "basic functionality": {
           "js": "0.10.0",
@@ -5314,11 +4961,7 @@
       },
       "expression": {
         "interpolated": true,
-        "parameters": [
-          "zoom",
-          "feature",
-          "feature-state"
-        ]
+        "parameters": ["zoom", "feature", "feature-state"]
       },
       "property-type": "data-driven"
     },
@@ -5327,9 +4970,7 @@
       "default": "rgba(0, 0, 0, 0)",
       "transition": true,
       "doc": "The color of the text's halo, which helps it stand out from backgrounds.",
-      "requires": [
-        "text-field"
-      ],
+      "requires": ["text-field"],
       "sdk-support": {
         "basic functionality": {
           "js": "0.10.0",
@@ -5346,11 +4987,7 @@
       },
       "expression": {
         "interpolated": true,
-        "parameters": [
-          "zoom",
-          "feature",
-          "feature-state"
-        ]
+        "parameters": ["zoom", "feature", "feature-state"]
       },
       "property-type": "data-driven"
     },
@@ -5361,9 +4998,7 @@
       "transition": true,
       "units": "pixels",
       "doc": "Distance of halo to the font outline. Max text halo width is 1/4 of the font-size.",
-      "requires": [
-        "text-field"
-      ],
+      "requires": ["text-field"],
       "sdk-support": {
         "basic functionality": {
           "js": "0.10.0",
@@ -5380,11 +5015,7 @@
       },
       "expression": {
         "interpolated": true,
-        "parameters": [
-          "zoom",
-          "feature",
-          "feature-state"
-        ]
+        "parameters": ["zoom", "feature", "feature-state"]
       },
       "property-type": "data-driven"
     },
@@ -5395,9 +5026,7 @@
       "transition": true,
       "units": "pixels",
       "doc": "The halo's fadeout distance towards the outside.",
-      "requires": [
-        "text-field"
-      ],
+      "requires": ["text-field"],
       "sdk-support": {
         "basic functionality": {
           "js": "0.10.0",
@@ -5414,11 +5043,7 @@
       },
       "expression": {
         "interpolated": true,
-        "parameters": [
-          "zoom",
-          "feature",
-          "feature-state"
-        ]
+        "parameters": ["zoom", "feature", "feature-state"]
       },
       "property-type": "data-driven"
     },
@@ -5426,16 +5051,11 @@
       "type": "array",
       "value": "number",
       "length": 2,
-      "default": [
-        0,
-        0
-      ],
+      "default": [0, 0],
       "transition": true,
       "units": "pixels",
       "doc": "Distance that the text's anchor is moved from its original placement. Positive values indicate right and down, while negative values indicate left and up.",
-      "requires": [
-        "text-field"
-      ],
+      "requires": ["text-field"],
       "sdk-support": {
         "basic functionality": {
           "js": "0.10.0",
@@ -5446,9 +5066,7 @@
       },
       "expression": {
         "interpolated": true,
-        "parameters": [
-          "zoom"
-        ]
+        "parameters": ["zoom"]
       },
       "property-type": "data-constant"
     },
@@ -5464,10 +5082,7 @@
       },
       "doc": "Controls the frame of reference for `text-translate`.",
       "default": "map",
-      "requires": [
-        "text-field",
-        "text-translate"
-      ],
+      "requires": ["text-field", "text-translate"],
       "sdk-support": {
         "basic functionality": {
           "js": "0.10.0",
@@ -5478,9 +5093,7 @@
       },
       "expression": {
         "interpolated": false,
-        "parameters": [
-          "zoom"
-        ]
+        "parameters": ["zoom"]
       },
       "property-type": "data-constant"
     }
@@ -5503,9 +5116,7 @@
       },
       "expression": {
         "interpolated": true,
-        "parameters": [
-          "zoom"
-        ]
+        "parameters": ["zoom"]
       },
       "property-type": "data-constant"
     },
@@ -5526,9 +5137,7 @@
       },
       "expression": {
         "interpolated": true,
-        "parameters": [
-          "zoom"
-        ]
+        "parameters": ["zoom"]
       },
       "property-type": "data-constant"
     },
@@ -5549,9 +5158,7 @@
       },
       "expression": {
         "interpolated": true,
-        "parameters": [
-          "zoom"
-        ]
+        "parameters": ["zoom"]
       },
       "property-type": "data-constant"
     },
@@ -5572,9 +5179,7 @@
       },
       "expression": {
         "interpolated": true,
-        "parameters": [
-          "zoom"
-        ]
+        "parameters": ["zoom"]
       },
       "property-type": "data-constant"
     },
@@ -5595,9 +5200,7 @@
       },
       "expression": {
         "interpolated": true,
-        "parameters": [
-          "zoom"
-        ]
+        "parameters": ["zoom"]
       },
       "property-type": "data-constant"
     },
@@ -5618,9 +5221,7 @@
       },
       "expression": {
         "interpolated": true,
-        "parameters": [
-          "zoom"
-        ]
+        "parameters": ["zoom"]
       },
       "property-type": "data-constant"
     },
@@ -5646,9 +5247,7 @@
       },
       "expression": {
         "interpolated": false,
-        "parameters": [
-          "zoom"
-        ]
+        "parameters": ["zoom"]
       },
       "property-type": "data-constant"
     },
@@ -5669,9 +5268,7 @@
       },
       "expression": {
         "interpolated": true,
-        "parameters": [
-          "zoom"
-        ]
+        "parameters": ["zoom"]
       },
       "property-type": "data-constant"
     }
@@ -5694,9 +5291,7 @@
       },
       "expression": {
         "interpolated": true,
-        "parameters": [
-          "zoom"
-        ]
+        "parameters": ["zoom"]
       },
       "property-type": "data-constant"
     },
@@ -5722,9 +5317,7 @@
       },
       "expression": {
         "interpolated": false,
-        "parameters": [
-          "zoom"
-        ]
+        "parameters": ["zoom"]
       },
       "property-type": "data-constant"
     },
@@ -5745,9 +5338,7 @@
       },
       "expression": {
         "interpolated": true,
-        "parameters": [
-          "zoom"
-        ]
+        "parameters": ["zoom"]
       },
       "property-type": "data-constant"
     },
@@ -5766,9 +5357,7 @@
       },
       "expression": {
         "interpolated": true,
-        "parameters": [
-          "zoom"
-        ]
+        "parameters": ["zoom"]
       },
       "property-type": "data-constant"
     },
@@ -5787,9 +5376,7 @@
       },
       "expression": {
         "interpolated": true,
-        "parameters": [
-          "zoom"
-        ]
+        "parameters": ["zoom"]
       },
       "property-type": "data-constant"
     },
@@ -5808,9 +5395,7 @@
       },
       "expression": {
         "interpolated": true,
-        "parameters": [
-          "zoom"
-        ]
+        "parameters": ["zoom"]
       },
       "property-type": "data-constant"
     }
@@ -5836,9 +5421,7 @@
       },
       "expression": {
         "interpolated": true,
-        "parameters": [
-          "zoom"
-        ]
+        "parameters": ["zoom"]
       },
       "property-type": "data-constant"
     },
@@ -5857,9 +5440,7 @@
       },
       "expression": {
         "interpolated": false,
-        "parameters": [
-          "zoom"
-        ]
+        "parameters": ["zoom"]
       },
       "property-type": "cross-faded"
     },
@@ -5880,9 +5461,7 @@
       },
       "expression": {
         "interpolated": true,
-        "parameters": [
-          "zoom"
-        ]
+        "parameters": ["zoom"]
       },
       "property-type": "data-constant"
     }

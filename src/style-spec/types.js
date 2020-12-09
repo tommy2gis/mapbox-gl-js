@@ -181,7 +181,8 @@ export type FillLayerSpecification = {|
         "fill-outline-color"?: DataDrivenPropertyValueSpecification<ColorSpecification>,
         "fill-translate"?: PropertyValueSpecification<[number, number]>,
         "fill-translate-anchor"?: PropertyValueSpecification<"map" | "viewport">,
-        "fill-pattern"?: DataDrivenPropertyValueSpecification<ResolvedImageSpecification>
+        "fill-pattern"?: DataDrivenPropertyValueSpecification<ResolvedImageSpecification>,
+        "fill-water"?: PropertyValueSpecification<"water" | "none">
     |}
 |}
 
@@ -357,6 +358,9 @@ export type FillExtrusionLayerSpecification = {|
         "fill-extrusion-pattern"?: DataDrivenPropertyValueSpecification<ResolvedImageSpecification>,
         "fill-extrusion-height"?: DataDrivenPropertyValueSpecification<number>,
         "fill-extrusion-base"?: DataDrivenPropertyValueSpecification<number>,
+        "fill-extrusion-intensity"?: DataDrivenPropertyValueSpecification<number>,
+        "fill-extrusion-bottom-color"?: DataDrivenPropertyValueSpecification<ColorSpecification>,
+        "fill-extrusion-pattern-repeat"?: PropertyValueSpecification<boolean>,
         "fill-extrusion-vertical-gradient"?: PropertyValueSpecification<boolean>
     |}
 |}

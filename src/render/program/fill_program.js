@@ -48,6 +48,11 @@ export type FillOutlinePatternUniformsType = {|
     'u_fade': Uniform1f
 |};
 
+export type FillWaterType = {|
+    'u_matrix': UniformMatrix4f,
+    'u_time': Uniform1f
+|};
+
 const fillUniforms = (context: Context, locations: UniformLocations): FillUniformsType => ({
     'u_matrix': new UniformMatrix4f(context, locations.u_matrix)
 });
@@ -79,8 +84,21 @@ const fillOutlinePatternUniforms = (context: Context, locations: UniformLocation
     'u_fade': new Uniform1f(context, locations.u_fade)
 });
 
+const fillWaterUniforms= (context: Context, locations: UniformLocations): FillWaterType => ({
+    'u_matrix': new UniformMatrix4f(context, locations.u_matrix),
+    'u_time': new Uniform1f(context, locations.u_time)
+});
+
 const fillUniformValues = (matrix: Float32Array): UniformValues<FillUniformsType> => ({
     'u_matrix': matrix
+});
+
+const fillWaterUniformValues = (
+    matrix: Float32Array,
+    time: number
+): UniformValues<FillWaterType> => ({
+    'u_matrix': matrix,
+    'u_time': time
 });
 
 const fillPatternUniformValues = (
@@ -122,5 +140,7 @@ export {
     fillUniformValues,
     fillPatternUniformValues,
     fillOutlineUniformValues,
-    fillOutlinePatternUniformValues
+    fillOutlinePatternUniformValues,
+    fillWaterUniforms,
+    fillWaterUniformValues
 };

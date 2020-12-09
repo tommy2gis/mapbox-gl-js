@@ -1,7 +1,7 @@
 // @flow
 
 import Protobuf from 'pbf';
-import VT from '@shitao1988/swsk-vector-tile';
+import VT from '@tommy2gis/swsk-vector-tile';
 import assert from 'assert';
 
 import deref from '../../src/style-spec/deref';

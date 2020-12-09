@@ -25,7 +25,8 @@ export type FillExtrusionUniformsType = {|
     'u_lightintensity': Uniform1f,
     'u_lightcolor': Uniform3f,
     'u_vertical_gradient': Uniform1f,
-    'u_opacity': Uniform1f
+    'u_opacity': Uniform1f,
+    'u_type': Uniform1i
 |};
 
 export type FillExtrusionPatternUniformsType = {|
@@ -42,8 +43,12 @@ export type FillExtrusionPatternUniformsType = {|
     'u_pixel_coord_lower': Uniform2f,
     'u_scale': Uniform3f,
     'u_fade': Uniform1f,
-    'u_opacity': Uniform1f
+    'u_opacity': Uniform1f,
+    'u_type': Uniform1i
 |};
+
+
+
 
 const fillExtrusionUniforms = (context: Context, locations: UniformLocations): FillExtrusionUniformsType => ({
     'u_matrix': new UniformMatrix4f(context, locations.u_matrix),
@@ -51,8 +56,12 @@ const fillExtrusionUniforms = (context: Context, locations: UniformLocations): F
     'u_lightintensity': new Uniform1f(context, locations.u_lightintensity),
     'u_lightcolor': new Uniform3f(context, locations.u_lightcolor),
     'u_vertical_gradient': new Uniform1f(context, locations.u_vertical_gradient),
-    'u_opacity': new Uniform1f(context, locations.u_opacity)
+    'u_opacity': new Uniform1f(context, locations.u_opacity),
+    'u_type': new Uniform1i(context, locations.u_type),
+    
 });
+
+
 
 const fillExtrusionPatternUniforms = (context: Context, locations: UniformLocations): FillExtrusionPatternUniformsType => ({
     'u_matrix': new UniformMatrix4f(context, locations.u_matrix),
@@ -68,14 +77,16 @@ const fillExtrusionPatternUniforms = (context: Context, locations: UniformLocati
     'u_pixel_coord_lower': new Uniform2f(context, locations.u_pixel_coord_lower),
     'u_scale': new Uniform3f(context, locations.u_scale),
     'u_fade': new Uniform1f(context, locations.u_fade),
-    'u_opacity': new Uniform1f(context, locations.u_opacity)
+    'u_opacity': new Uniform1f(context, locations.u_opacity),
+    'u_type': new Uniform1i(context, locations.u_type)
 });
 
 const fillExtrusionUniformValues = (
     matrix: Float32Array,
     painter: Painter,
     shouldUseVerticalGradient: boolean,
-    opacity: number
+    opacity: number,
+    layer: FillStyleLayer
 ): UniformValues<FillExtrusionUniformsType> => {
     const light = painter.style.light;
     const _lp = light.properties.get('position');
@@ -88,13 +99,17 @@ const fillExtrusionUniformValues = (
 
     const lightColor = light.properties.get('color');
 
+    let type = 0;
+    layer && (layer.getPaintProperty("fill-extrusion-intensity") && (type = 1), layer.getPaintProperty("fill-extrusion-bottom-color") && (type = 2));
+    //console.log("utype2:"+type);
     return {
         'u_matrix': matrix,
         'u_lightpos': lightPos,
         'u_lightintensity': light.properties.get('intensity'),
         'u_lightcolor': [lightColor.r, lightColor.g, lightColor.b],
         'u_vertical_gradient': +shouldUseVerticalGradient,
-        'u_opacity': opacity
+        'u_opacity': opacity,
+        'u_type': type
     };
 };
 
@@ -105,18 +120,26 @@ const fillExtrusionPatternUniformValues = (
     opacity: number,
     coord: OverscaledTileID,
     crossfade: CrossfadeParameters,
-    tile: Tile
+    tile: Tile,
+    layer: FillStyleLayer
 ): UniformValues<FillExtrusionPatternUniformsType> => {
+    var u_type = 0;
+    layer && (!1 === layer.paint.get("fill-extrusion-pattern-repeat") && (u_type = 1));
+    //console.log("fill-extrusion-pattern-repeat:"+layer.paint.get("fill-extrusion-pattern-repeat"));
+    //console.log("utype:"+u_type);
     return extend(fillExtrusionUniformValues(matrix, painter, shouldUseVerticalGradient, opacity),
         patternUniformValues(crossfade, painter, tile),
         {
-            'u_height_factor': -Math.pow(2, coord.overscaledZ) / tile.tileSize / 8
+            'u_height_factor': -Math.pow(2, coord.overscaledZ) / tile.tileSize / 8,
+            'u_type': u_type
         });
 };
+
+
 
 export {
     fillExtrusionUniforms,
     fillExtrusionPatternUniforms,
     fillExtrusionUniformValues,
-    fillExtrusionPatternUniformValues
+    fillExtrusionPatternUniformValues,
 };

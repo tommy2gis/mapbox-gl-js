@@ -1,6 +1,6 @@
 
 import Benchmark from '../lib/benchmark';
-import {VectorTile} from '@shitao1988/swsk-vector-tile';
+import {VectorTile} from '@tommy2gis/swsk-vector-tile';
 import Pbf from 'pbf';
 import createFilter from '../../src/style-spec/feature_filter';
 import filters from '../data/filters.json';

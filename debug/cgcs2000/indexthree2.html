@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Mapbox GL JS debug page</title>
+        <meta charset="utf-8" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0, user-scalable=no"
+        />
+        <link rel="stylesheet" href="/dist/mapbox-gl.css" />
+        <style>
+            html,
+            body,
+            #map {
+                margin: 0;
+                height: 100%;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div id="map"></div>
+        <script type="text/javascript" src="/dist/threebox.js"></script>
+        <script type="text/javascript" src="http://njypt.njghzy.com.cn:8090/geomap-api/demoCenter/mapboxDemo/lib/GeoGlobeAPI_53/js/turf.min.js"></script>
+        <script src="https://polyfill.alicdn.com/polyfill.min.js"></script>
+        <script src="/dist/mapbox-gl-dev.js"></script>
+        <script src="./three.js"></script>
+        <script>
+            var style = {
+                version: 8,
+                sources: {
+                    tianditu: {
+                        type: "raster",
+                        tiles: [
+                            "http://t0.tianditu.gov.cn/DataServer?T=vec_w&x={x}&y={y}&l={z}&tk=5476e03145570ac8182560f41a1e538b",
+                        ],
+                        tileSize: 256,
+                    },
+                    tianditucva: {
+                        type: "raster",
+                        tiles: [
+                            "http://t0.tianditu.gov.cn/DataServer?T=cva_w&x={x}&y={y}&l={z}&tk=5476e03145570ac8182560f41a1e538b",
+                        ],
+                        tileSize: 256,
+                    },
+                },
+                layers: [
+                    {
+                        id: "tianditu",
+                        type: "raster",
+                        source: "tianditu",
+                    },
+                    {
+                        id: "tianditucva",
+                        type: "raster",
+                        source: "tianditucva",
+                    },
+                ],
+            };
+            var map = (window.map = new mapboxgl.Map({
+                container: "map",
+                zoom: 18,
+                bearing: -47,
+                pitch: 45,
+                units: "degrees",
+                center: [114.27731517981033,30.597299735680195],
+                style: style
+            }));
+
+            map.on("load", function () {
+        map.addLayer(
+          {
+            id: "custom_layer",
+            type: "custom",
+            onAdd: function (map, mbxContext) {
+               //构造THREE可视化图层
+         var threebox = new GeoGlobe.Visuals.Three();
+            //添加到地图中
+            threebox.addTo(map,mbxContext);
+            //构造线图层
+            var SingleBuildingLayer = new GeoGlobe.Visuals.Three.SingleBuildingLayer({
+                id: 'single building',
+                data: {
+    "type":"Feature",
+    "properties":{
+        "id": 100001,
+        "level":7,
+        "name":"中国银行（武汉新台北支行）",
+        "levels": [3,3,4,5,3,3,3]
+    },
+    "geometry":{
+        "type":"Polygon",
+        "coordinates":[[[114.27731517981033,30.597299735680195],[114.2771650822979,30.59732760632838],[114.27706858577743,30.597401572142914],[114.2771114663513,30.597447680396996],[114.27731517981033,30.597299735680195]]]
+    }
+},
+                visible: true,
+                isCirclesVisible: false,
+                isFloorLinesVisible: true,
+                lightShown:  false,
+                lightColor:  'rgb(255, 255, 0)',
+                floorColor:  'white',
+                floorColorOpacity: 0.6,
+                wallColor :  'yellow',
+                wallColorOpacity: 0.3,
+                movingFloorColor: 'rgb(135, 135, 135)',
+                movingFloorColorOpacity: 0.2
+            });
+            //添加到THREE图层
+            SingleBuildingLayer.addTo(threebox);
+            //绘制
+            threebox.render();
+            },
+
+            render: function (gl, matrix) {
+            //  threebox.update();
+            },
+          },
+          "tianditucva"
+        ); //添加到建筑物图层之后
+      });
+
+            map.on('load', function () {
+        
+
+            })
+           
+        </script>
+    </body>
+</html>
