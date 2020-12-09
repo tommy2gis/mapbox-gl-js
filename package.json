@@ -1,7 +1,7 @@
 {
   "name": "@tommy2gis/swsk-mapbox-gl",
   "description": "A WebGL interactive maps library",
-  "version": "1.10.2",
+  "version": "1.10.4",
   "main": "dist/mapbox-gl.js",
   "style": "dist/mapbox-gl.css",
   "license": "SEE LICENSE IN LICENSE.txt",

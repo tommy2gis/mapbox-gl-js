@@ -711,7 +711,7 @@ layers: [
     "filter": ["all"],
     "layout": {"visibility": "visible"},
     "paint": {
-      "fill-extrusion-color": "rgba(10, 46, 80, 1)",
+      "fill-extrusion-color": "#2db7f5",
       "fill-extrusion-height": [
         "interpolate",
         ["linear"],
@@ -731,11 +731,11 @@ layers: [
         ["get", "BasementFl"]
       ],
       "fill-extrusion-opacity": 0.8,
-      "fill-extrusion-intensity":5,
-      // "fill-extrusion-pattern-repeat":true,
-      // "fill-extrusion-pattern": {
-      //   "stops": [[18, "午夜蓝8"], [19, "午夜蓝16"], [20, "午夜蓝"]]
-      // }
+      //"fill-extrusion-intensity":5,
+      "fill-extrusion-pattern-repeat":true,
+      "fill-extrusion-pattern": {
+        "stops": [[18, "午夜蓝8"], [19, "午夜蓝16"], [20, "午夜蓝"]]
+      }
     }
   },
   {
@@ -745,7 +745,7 @@ layers: [
     "source-layer": "FW_FangWu_A",
     "minzoom": 18,
     "filter": ["all"],
-    "layout": {"visibility": "visible"},
+    "layout": {"visibility": "none"},
     "paint": {
       "fill-extrusion-color": "rgba(10, 46, 80, 1)",
       "fill-extrusion-height": [
