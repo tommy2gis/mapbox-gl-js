@@ -45,7 +45,39 @@ map.on("load", function() {
           }
         }
 
-        map.addImage("gradient", { width: width, height: width, data: data });
+      //  map.addImage("gradient", { width: width, height: width, data: data });
+
+        // map.addLayer(
+        //             new mapboxgl.custom.ShieldLayer({
+        //                 id: 'shield',
+        //                 position: [120.57, 32.385858],
+        //                 radius: 1000,
+        //                 color: 'rgba(0, 128, 255, 0.6)'
+        //             })
+        //         );
+        
+              map.addLayer(
+                    new mapboxgl.custom.ImageCircle({
+                        id: 'image-circle-1',
+                        position: [120.57, 32.385858],
+                        radius: 100,
+                        url: 'http://demo-lt.geostar.com.cn:11281/geomap-api/JsCesuimDemo/resource/images/circular.png',
+                        color: 'white'
+                        // 是否为逆时针旋转
+                        // reverse: true,
+                    })
+                );
+                map.addLayer(   new mapboxgl.custom.RadarLayer({
+                        id: 'radar',
+                        position: [120.57, 32.385858,10],
+                        radius: 1000,
+                        color: 'rgba(0, 128, 255, 0.6)',
+                        // 扇形弧度 和 扇形边的点个数
+                        angle: Math.PI / 3,
+                        num: 30
+                        // 是否为逆时针旋转
+                        // reverse: true,
+                    }));
 
         map.addLayer({
           id: "points",

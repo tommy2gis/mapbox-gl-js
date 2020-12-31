@@ -26,6 +26,10 @@ import WorkerPool from './util/worker_pool';
 import {prewarm, clearPrewarmedResources} from './util/global_worker_pool';
 import {clearTileCache} from './util/tile_request_cache';
 import {PerformanceUtils} from './util/performance';
+import ShieldLayer from './custom/ShieldLayer';
+import RadarLayer from './custom/RadarLayer';
+import ImageCircle from './custom/ImageCircle';
+import CustomLayer from './custom/CustomLayer';
 
 const exported = {
     version,
@@ -47,6 +51,8 @@ const exported = {
     MercatorCoordinate,
     Evented,
     config,
+    CustomLayer,
+    custom:{ShieldLayer: ShieldLayer,RadarLayer:RadarLayer,ImageCircle:ImageCircle},
     /**
      * Initializes resources like WebWorkers that can be shared across maps to lower load
      * times in some situations. `mapboxgl.workerUrl` and `mapboxgl.workerCount`, if being
