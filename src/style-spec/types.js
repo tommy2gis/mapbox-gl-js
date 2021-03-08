@@ -66,6 +66,7 @@ export type StyleSpecification = {|
     "bearing"?: number,
     "pitch"?: number,
     "light"?: LightSpecification,
+    "terrain"?: TerrainSpecification,
     "sources": {[_: string]: SourceSpecification},
     "sprite"?: string,
     "glyphs"?: string,
@@ -78,6 +79,11 @@ export type LightSpecification = {|
     "position"?: PropertyValueSpecification<[number, number, number]>,
     "color"?: PropertyValueSpecification<ColorSpecification>,
     "intensity"?: PropertyValueSpecification<number>
+|}
+
+export type TerrainSpecification = {|
+    "source": string,
+    "exaggeration"?: PropertyValueSpecification<number>
 |}
 
 export type VectorSourceSpecification = {
@@ -422,6 +428,28 @@ export type BackgroundLayerSpecification = {|
     |}
 |}
 
+export type SkyLayerSpecification = {|
+    "id": string,
+    "type": "sky",
+    "metadata"?: mixed,
+    "minzoom"?: number,
+    "maxzoom"?: number,
+    "layout"?: {|
+        "visibility"?: "visible" | "none"
+    |},
+    "paint"?: {|
+        "sky-type"?: PropertyValueSpecification<"gradient" | "atmosphere">,
+        "sky-atmosphere-sun"?: PropertyValueSpecification<[number, number]>,
+        "sky-atmosphere-sun-intensity"?: number,
+        "sky-gradient-center"?: PropertyValueSpecification<[number, number]>,
+        "sky-gradient-radius"?: PropertyValueSpecification<number>,
+        "sky-gradient"?: ExpressionSpecification,
+        "sky-atmosphere-halo-color"?: ColorSpecification,
+        "sky-atmosphere-color"?: ColorSpecification,
+        "sky-opacity"?: PropertyValueSpecification<number>
+    |}
+|}
+
 export type LayerSpecification =
     | FillLayerSpecification
     | LineLayerSpecification
@@ -431,5 +459,6 @@ export type LayerSpecification =
     | FillExtrusionLayerSpecification
     | RasterLayerSpecification
     | HillshadeLayerSpecification
-    | BackgroundLayerSpecification;
+    | BackgroundLayerSpecification
+    | SkyLayerSpecification;
 

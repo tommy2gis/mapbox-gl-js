@@ -10,6 +10,10 @@
             margin: 0;
             height: 100%;
         }
+
+        #map {
+            transform: scale(0.8);
+        }
     </style>
 </head>
 
@@ -23,26 +27,37 @@
 var style = {
     version: 8,
     sources: {
-        countries: {
-            type: 'geojson',
-            data: 'https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_110m_admin_0_countries.geojson'
+        img: {
+          type: 'raster',
+          tiles: ['http://t0.tianditu.gov.cn/DataServer?T=img_c&x={x}&y={y}&l={z}&tk=	bfc12ce6bd94a4449ad626b8a0b709d0'],
+          tileSize: 256
         },
-        tianditu: {
-            type: 'raster',
-            tiles: ['http://t0.tianditu.gov.cn/DataServer?T=vec_c&x={x}&y={y}&l={z}&tk=5476e03145570ac8182560f41a1e538b'],
-            tileSize: 256
+        admin: {
+            type: 'geojson',
+            data: './100000_full.json'
+        },
+        terrain: {
+            type: 'raster-dem',
+            url: 'http://47.110.239.66/api/tilesets/v1/demo/terrain/tilejson'
         }
+    },
+    terrain: {
+        source: 'terrain'
     },
     layers: [
         {
-            id: 'tianditu',
+            id: 'img',
             type: 'raster',
-            source: 'tianditu'
+            source: 'img'
         },
         {
-            id: 'countries',
+            id: 'admin',
             type: 'line',
-            source: 'countries'
+            source: 'admin'
+        },
+        {
+            id: 'sky',
+            type: 'sky'
         }
     ]
 };
