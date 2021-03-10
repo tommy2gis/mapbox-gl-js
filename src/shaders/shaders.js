@@ -55,10 +55,22 @@ import symbolSDFFrag from './symbol_sdf.fragment.glsl';
 import symbolSDFVert from './symbol_sdf.vertex.glsl';
 import symbolTextAndIconFrag from './symbol_text_and_icon.fragment.glsl';
 import symbolTextAndIconVert from './symbol_text_and_icon.vertex.glsl';
+import skyboxFrag from './skybox.fragment.glsl';
+import skyboxGradientFrag from './skybox_gradient.fragment.glsl';
+import skyboxVert from './skybox.vertex.glsl';
+import terrainRasterFrag from './terrain_raster.fragment.glsl';
+import terrainRasterVert from './terrain_raster.vertex.glsl';
+import terrainDepthFrag from './terrain_depth.fragment.glsl';
+import terrainDepthVert from './terrain_depth.vertex.glsl';
+import preludeTerrainVert from './_prelude_terrain.vertex.glsl';
+import skyboxCaptureFrag from './skybox_capture.fragment.glsl';
+import skyboxCaptureVert from './skybox_capture.vertex.glsl';
 
 const fillWaterFrag= "#define TAU 6.28318530718\n#define MAX_ITER 5\n#define INTENSITY 0.004\n#define SCALE 1000.0\nuniform lowp float u_time;void main() {vec2 uv=gl_FragCoord.xy/SCALE;vec2 p=mod(uv*TAU,TAU)-250.0;vec2 i=vec2(p);float c=1.0;for (int n=0; n < MAX_ITER; n++) {float t=0.5*u_time*(1.0-(3.5/float(n+1)));i=p+vec2(cos(t-i.x)+sin(t+i.y),sin(t-i.y)+cos(t+i.x));c+=1.0/length(vec2(p.x/(sin(i.x+t)/INTENSITY),p.y/(cos(i.y+t)/INTENSITY)));}c=1.17-pow(c/float(MAX_ITER),1.4);gl_FragColor=vec4(clamp(vec3(pow(abs(c),8.0))+vec3(0.0,0.35,0.5),0.0,1.0),1.0);}"
 const fillWaterVert= "attribute vec2 a_pos;uniform mat4 u_matrix;\n#pragma mapbox: define highp vec4 color\n#pragma mapbox: define lowp float opacity\nvoid main() {\n#pragma mapbox: initialize highp vec4 color\n#pragma mapbox: initialize lowp float opacity\ngl_Position=u_matrix*vec4(a_pos,0,1);}"
 
+export let preludeTerrain = {};
+preludeTerrain = compile('', preludeTerrainVert, true);
 export const prelude = compile(preludeFrag, preludeVert);
 export const background = compile(backgroundFrag, backgroundVert);
 export const backgroundPattern = compile(backgroundPatternFrag, backgroundPatternVert);
@@ -86,16 +98,24 @@ export const raster = compile(rasterFrag, rasterVert);
 export const symbolIcon = compile(symbolIconFrag, symbolIconVert);
 export const symbolSDF = compile(symbolSDFFrag, symbolSDFVert);
 export const symbolTextAndIcon = compile(symbolTextAndIconFrag, symbolTextAndIconVert);
+export const terrainRaster = compile(terrainRasterFrag, terrainRasterVert);
+export const terrainDepth = compile(terrainDepthFrag, terrainDepthVert);
+export const skybox = compile(skyboxFrag, skyboxVert);
+export const skyboxGradient = compile(skyboxGradientFrag, skyboxVert);
+export const skyboxCapture = compile(skyboxCaptureFrag, skyboxCaptureVert);
 
 // Expand #pragmas to #ifdefs.
 
-function compile(fragmentSource, vertexSource) {
+function compile(fragmentSource, vertexSource, isPreludeTerrainShader) {
     const re = /#pragma mapbox: ([\w]+) ([\w]+) ([\w]+) ([\w]+)/g;
 
-    const staticAttributes = vertexSource.match(/attribute ([\w]+) ([\w]+)/g);
-    const fragmentUniforms = fragmentSource.match(/uniform ([\w]+) ([\w]+)([\s]*)([\w]*)/g);
-    const vertexUniforms = vertexSource.match(/uniform ([\w]+) ([\w]+)([\s]*)([\w]*)/g);
-    const staticUniforms = vertexUniforms ? vertexUniforms.concat(fragmentUniforms) : fragmentUniforms;
+    const staticAttributes = vertexSource.match(/attribute (highp |mediump |lowp )?([\w]+) ([\w]+)/g);
+    const fragmentUniforms = fragmentSource.match(/uniform (highp |mediump |lowp )?([\w]+) ([\w]+)([\s]*)([\w]*)/g);
+    const vertexUniforms = vertexSource.match(/uniform (highp |mediump |lowp )?([\w]+) ([\w]+)([\s]*)([\w]*)/g);
+    let staticUniforms = vertexUniforms ? vertexUniforms.concat(fragmentUniforms) : fragmentUniforms;
+    if (!isPreludeTerrainShader) {
+        staticUniforms = preludeTerrain.staticUniforms.concat(staticUniforms);
+    }
 
     const fragmentPragmas = {};
 
