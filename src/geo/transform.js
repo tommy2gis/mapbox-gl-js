@@ -382,7 +382,7 @@ class Transform {
 
         // Compute zoom level from the height of the camera relative to the terrain
         const cameraZoom: number = this._cameraZoom;
-        const elevationAtCenter = this._elevation.getAtPointOrZero(MercatorCoordinate.fromLngLat(this.center));
+        const elevationAtCenter = this._elevation.getAtPointOrZero(this.crs==='EPSG:4490'?MercatorCoordinate.from2000LngLat(this.center):MercatorCoordinate.fromLngLat(this.center));
         const mercatorElevation = mercatorZfromAltitude(elevationAtCenter, this.center.lat);
         const altitude  = this._mercatorZfromZoom(cameraZoom);
         const minHeight = this._mercatorZfromZoom(this._maxZoom);
@@ -960,7 +960,7 @@ class Transform {
      * @private
      */
     coordinateLocation(coord: MercatorCoordinate) {
-        return coord.toLngLat(this._crs);
+        return coord.toLngLat(this.crs);
     }
 
     /**
@@ -1285,7 +1285,7 @@ class Transform {
             // Camera zoom has to be updated as the orbit distance might have changed
             this._cameraZoom = this._zoomFromMercatorZ(maxAltitude);
             this._centerAltitude = newCenter.toAltitude();
-            this._center = newCenter.toLngLat(this._crs);
+            this._center = newCenter.toLngLat(this.crs);
             this._updateZoomFromElevation();
             this._constrain();
             this._calcMatrices();
@@ -1645,7 +1645,7 @@ class Transform {
         if (this._terrainEnabled())
             this._updateCameraOnTerrain();
 
-        this._center = new MercatorCoordinate(position[0], position[1], position[2]).toLngLat(this._crs);
+        this._center = new MercatorCoordinate(position[0], position[1], position[2]).toLngLat(this.crs);
         this._unmodified = false;
         this._constrain();
         this._calcMatrices();
