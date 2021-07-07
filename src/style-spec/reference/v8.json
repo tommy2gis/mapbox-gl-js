@@ -406,6 +406,11 @@
       "type": "string",
       "doc": "Contains an attribution to be displayed when the map is shown to a user."
     },
+    "crs": {
+      "type": "string",
+      "default": "EPSG:3857",
+      "doc": "crs"
+    },
     "buffer": {
       "type": "number",
       "default": 128,

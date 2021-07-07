@@ -674,6 +674,7 @@ class Style extends Evented {
         if (shouldValidate && this._validate(validateStyle.source, `sources.${id}`, source, null, options)) return;
 
         if (this.map && this.map._collectResourceTiming) (source: any).collectResourceTiming = true;
+        if (source.type==='vector'||source.type==='geojson'){source.crs = this.map.crs };
 
         const sourceInstance = createSource(id, source, this.dispatcher, this);
 
