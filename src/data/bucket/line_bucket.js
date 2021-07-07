@@ -1,39 +1,40 @@
 // @flow
 
-import {LineLayoutArray, LineExtLayoutArray} from '../array_types';
+import {LineLayoutArray, LineExtLayoutArray} from '../array_types.js';
 
-import {members as layoutAttributes} from './line_attributes';
-import {members as layoutAttributesExt} from './line_attributes_ext';
-import SegmentVector from '../segment';
-import {ProgramConfigurationSet} from '../program_configuration';
-import {TriangleIndexArray} from '../index_array_type';
-import EXTENT from '../extent';
+import {members as layoutAttributes} from './line_attributes.js';
+import {members as layoutAttributesExt} from './line_attributes_ext.js';
+import SegmentVector from '../segment.js';
+import {ProgramConfigurationSet} from '../program_configuration.js';
+import {TriangleIndexArray} from '../index_array_type.js';
+import EXTENT from '../extent.js';
 import mvt from '@cgcs2000/vector-tile';
 const vectorTileFeatureTypes = mvt.VectorTileFeature.types;
-import {register} from '../../util/web_worker_transfer';
-import {hasPattern, addPatternDependencies} from './pattern_bucket_features';
-import loadGeometry from '../load_geometry';
-import toEvaluationFeature from '../evaluation_feature';
-import EvaluationParameters from '../../style/evaluation_parameters';
+import {register} from '../../util/web_worker_transfer.js';
+import {hasPattern, addPatternDependencies} from './pattern_bucket_features.js';
+import loadGeometry from '../load_geometry.js';
+import toEvaluationFeature from '../evaluation_feature.js';
+import EvaluationParameters from '../../style/evaluation_parameters.js';
 
-import type {CanonicalTileID} from '../../source/tile_id';
+import type {CanonicalTileID} from '../../source/tile_id.js';
 import type {
     Bucket,
     BucketParameters,
     BucketFeature,
     IndexedFeature,
     PopulateParameters
-} from '../bucket';
-import type LineStyleLayer from '../../style/style_layer/line_style_layer';
+} from '../bucket.js';
+import type LineStyleLayer from '../../style/style_layer/line_style_layer.js';
 import type Point from '@mapbox/point-geometry';
-import type {Segment} from '../segment';
-import {RGBAImage} from '../../util/image';
-import type Context from '../../gl/context';
-import type Texture from '../../render/texture';
-import type IndexBuffer from '../../gl/index_buffer';
-import type VertexBuffer from '../../gl/vertex_buffer';
-import type {FeatureStates} from '../../source/source_state';
-import type {ImagePosition} from '../../render/image_atlas';
+import type {Segment} from '../segment.js';
+import {RGBAImage} from '../../util/image.js';
+import type Context from '../../gl/context.js';
+import type Texture from '../../render/texture.js';
+import type IndexBuffer from '../../gl/index_buffer.js';
+import type VertexBuffer from '../../gl/vertex_buffer.js';
+import type {FeatureStates} from '../../source/source_state.js';
+import type {ImagePosition} from '../../render/image_atlas.js';
+import type LineAtlas from '../../render/line_atlas.js';
 
 // NOTE ON EXTRUDE SCALE:
 // scale the extrusion vector so that the normal length is this value.
@@ -169,21 +170,100 @@ class LineBucket implements Bucket {
             });
         }
 
+        const {lineAtlas, featureIndex} = options;
+        const hasFeatureDashes = this.addConstantDashes(lineAtlas);
+
         for (const bucketFeature of bucketFeatures) {
             const {geometry, index, sourceLayerIndex} = bucketFeature;
+
+            if (hasFeatureDashes) {
+                this.addFeatureDashes(bucketFeature, lineAtlas);
+            }
 
             if (this.hasPattern) {
                 const patternBucketFeature = addPatternDependencies('line', this.layers, bucketFeature, this.zoom, options);
                 // pattern features are added only once the pattern is loaded into the image atlas
                 // so are stored during populate until later updated with positions by tile worker in addFeatures
                 this.patternFeatures.push(patternBucketFeature);
+
             } else {
-                this.addFeature(bucketFeature, geometry, index, canonical, {});
+                this.addFeature(bucketFeature, geometry, index, canonical, lineAtlas.positions);
             }
 
             const feature = features[index].feature;
-            options.featureIndex.insert(feature, geometry, index, sourceLayerIndex, this.index);
+            featureIndex.insert(feature, geometry, index, sourceLayerIndex, this.index);
         }
+    }
+
+    addConstantDashes(lineAtlas: LineAtlas) {
+        let hasFeatureDashes = false;
+
+        for (const layer of this.layers) {
+            const dashPropertyValue = layer.paint.get('line-dasharray').value;
+            const capPropertyValue = layer.layout.get('line-cap').value;
+
+            if (dashPropertyValue.kind !== 'constant' || capPropertyValue.kind !== 'constant') {
+                hasFeatureDashes = true;
+
+            } else {
+                const constCap = capPropertyValue.value;
+                const constDash = dashPropertyValue.value;
+                if (!constDash) continue;
+                lineAtlas.addDash(constDash.from, constCap);
+                lineAtlas.addDash(constDash.to, constCap);
+                if (constDash.other) lineAtlas.addDash(constDash.other, constCap);
+            }
+        }
+
+        return hasFeatureDashes;
+    }
+
+    addFeatureDashes(feature: BucketFeature, lineAtlas: LineAtlas) {
+
+        const zoom = this.zoom;
+
+        for (const layer of this.layers) {
+            const dashPropertyValue = layer.paint.get('line-dasharray').value;
+            const capPropertyValue = layer.layout.get('line-cap').value;
+
+            if (dashPropertyValue.kind === 'constant' && capPropertyValue.kind === 'constant') continue;
+
+            let minDashArray, midDashArray, maxDashArray, minCap, midCap, maxCap;
+
+            if (dashPropertyValue.kind === 'constant') {
+                const constDash = dashPropertyValue.value;
+                if (!constDash) continue;
+                minDashArray = constDash.other || constDash.to;
+                midDashArray = constDash.to;
+                maxDashArray = constDash.from;
+
+            } else {
+                minDashArray = dashPropertyValue.evaluate({zoom: zoom - 1}, feature);
+                midDashArray = dashPropertyValue.evaluate({zoom}, feature);
+                maxDashArray = dashPropertyValue.evaluate({zoom: zoom + 1}, feature);
+            }
+
+            if (capPropertyValue.kind === 'constant') {
+                minCap = midCap = maxCap = capPropertyValue.value;
+
+            } else {
+                minCap = capPropertyValue.evaluate({zoom: zoom - 1}, feature);
+                midCap = capPropertyValue.evaluate({zoom}, feature);
+                maxCap = capPropertyValue.evaluate({zoom: zoom + 1}, feature);
+            }
+
+            lineAtlas.addDash(minDashArray, minCap);
+            lineAtlas.addDash(midDashArray, midCap);
+            lineAtlas.addDash(maxDashArray, maxCap);
+
+            const min = lineAtlas.getKey(minDashArray, minCap);
+            const mid = lineAtlas.getKey(midDashArray, midCap);
+            const max = lineAtlas.getKey(maxDashArray, maxCap);
+
+            // save positions for paint array
+            feature.patterns[layer.id] = {min, mid, max};
+        }
+
     }
 
     update(states: FeatureStates, vtLayer: VectorTileLayer, imagePositions: {[_: string]: ImagePosition}) {
@@ -236,7 +316,7 @@ class LineBucket implements Bucket {
     addFeature(feature: BucketFeature, geometry: Array<Array<Point>>, index: number, canonical: CanonicalTileID, imagePositions: {[_: string]: ImagePosition}) {
         const layout = this.layers[0].layout;
         const join = layout.get('line-join').evaluate(feature, {});
-        const cap = layout.get('line-cap');
+        const cap = layout.get('line-cap').evaluate(feature, {});
         const miterLimit = layout.get('line-miter-limit');
         const roundLimit = layout.get('line-round-limit');
         this.lineClips = this.lineFeatureClips(feature);
@@ -460,7 +540,17 @@ class LineBucket implements Bucket {
 
             } else if (currentJoin === 'square') {
                 const offset = prevVertex ? 1 : -1; // closing or starting square cap
-                this.addCurrentVertex(currentVertex, joinNormal, offset, offset, segment);
+
+                if (!prevVertex) {
+                    this.addCurrentVertex(currentVertex, joinNormal, offset, offset, segment);
+                }
+
+                // make the cap it's own quad to avoid the cap affecting the line distance
+                this.addCurrentVertex(currentVertex, joinNormal, 0, 0, segment);
+
+                if (prevVertex) {
+                    this.addCurrentVertex(currentVertex, joinNormal, offset, offset, segment);
+                }
 
             } else if (currentJoin === 'round') {
 

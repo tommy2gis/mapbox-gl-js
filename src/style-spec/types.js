@@ -67,6 +67,7 @@ export type StyleSpecification = {|
     "pitch"?: number,
     "light"?: LightSpecification,
     "terrain"?: TerrainSpecification,
+    "fog"?: FogSpecification,
     "sources": {[_: string]: SourceSpecification},
     "sprite"?: string,
     "glyphs"?: string,
@@ -84,6 +85,12 @@ export type LightSpecification = {|
 export type TerrainSpecification = {|
     "source": string,
     "exaggeration"?: PropertyValueSpecification<number>
+|}
+
+export type FogSpecification = {|
+    "range"?: PropertyValueSpecification<[number, number]>,
+    "color"?: PropertyValueSpecification<ColorSpecification>,
+    "horizon-blend"?: PropertyValueSpecification<number>
 |}
 
 export type VectorSourceSpecification = {
@@ -200,7 +207,7 @@ export type LineLayerSpecification = {|
     "maxzoom"?: number,
     "filter"?: FilterSpecification,
     "layout"?: {|
-        "line-cap"?: PropertyValueSpecification<"butt" | "round" | "square">,
+        "line-cap"?: DataDrivenPropertyValueSpecification<"butt" | "round" | "square">,
         "line-join"?: DataDrivenPropertyValueSpecification<"bevel" | "round" | "miter">,
         "line-miter-limit"?: PropertyValueSpecification<number>,
         "line-round-limit"?: PropertyValueSpecification<number>,
@@ -216,7 +223,7 @@ export type LineLayerSpecification = {|
         "line-gap-width"?: DataDrivenPropertyValueSpecification<number>,
         "line-offset"?: DataDrivenPropertyValueSpecification<number>,
         "line-blur"?: DataDrivenPropertyValueSpecification<number>,
-        "line-dasharray"?: PropertyValueSpecification<Array<number>>,
+        "line-dasharray"?: DataDrivenPropertyValueSpecification<Array<number>>,
         "line-pattern"?: DataDrivenPropertyValueSpecification<ResolvedImageSpecification>,
         "line-gradient"?: ExpressionSpecification
     |}
@@ -257,7 +264,7 @@ export type SymbolLayerSpecification = {|
         "text-font"?: DataDrivenPropertyValueSpecification<Array<string>>,
         "text-size"?: DataDrivenPropertyValueSpecification<number>,
         "text-max-width"?: DataDrivenPropertyValueSpecification<number>,
-        "text-line-height"?: PropertyValueSpecification<number>,
+        "text-line-height"?: DataDrivenPropertyValueSpecification<number>,
         "text-letter-spacing"?: DataDrivenPropertyValueSpecification<number>,
         "text-justify"?: DataDrivenPropertyValueSpecification<"auto" | "left" | "center" | "right">,
         "text-radial-offset"?: DataDrivenPropertyValueSpecification<number>,

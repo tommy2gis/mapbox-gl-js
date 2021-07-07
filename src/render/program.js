@@ -1,22 +1,24 @@
 // @flow
 
-import {prelude, preludeTerrain} from '../shaders';
+import {prelude, preludeTerrain, preludeFog, preludeCommonSource} from '../shaders/shaders.js';
 import assert from 'assert';
-import ProgramConfiguration from '../data/program_configuration';
-import VertexArrayObject from './vertex_array_object';
-import Context from '../gl/context';
-import {terrainUniforms} from '../terrain/terrain';
-import type {TerrainUniformsType} from '../terrain/terrain';
+import ProgramConfiguration from '../data/program_configuration.js';
+import VertexArrayObject from './vertex_array_object.js';
+import Context from '../gl/context.js';
+import {terrainUniforms} from '../terrain/terrain.js';
+import type {TerrainUniformsType} from '../terrain/terrain.js';
+import {fogUniforms} from './fog.js';
+import type {FogUniformsType} from './fog.js';
 
-import type SegmentVector from '../data/segment';
-import type VertexBuffer from '../gl/vertex_buffer';
-import type IndexBuffer from '../gl/index_buffer';
-import type DepthMode from '../gl/depth_mode';
-import type StencilMode from '../gl/stencil_mode';
-import type ColorMode from '../gl/color_mode';
-import type CullFaceMode from '../gl/cull_face_mode';
-import type {UniformBindings, UniformValues, UniformLocations} from './uniform_binding';
-import type {BinderUniform} from '../data/program_configuration';
+import type SegmentVector from '../data/segment.js';
+import type VertexBuffer from '../gl/vertex_buffer.js';
+import type IndexBuffer from '../gl/index_buffer.js';
+import type DepthMode from '../gl/depth_mode.js';
+import type StencilMode from '../gl/stencil_mode.js';
+import type ColorMode from '../gl/color_mode.js';
+import type CullFaceMode from '../gl/cull_face_mode.js';
+import type {UniformBindings, UniformValues, UniformLocations} from './uniform_binding.js';
+import type {BinderUniform} from '../data/program_configuration.js';
 
 export type DrawMode =
     | $PropertyType<WebGLRenderingContext, 'LINES'>
@@ -41,6 +43,7 @@ class Program<Us: UniformBindings> {
     binderUniforms: Array<BinderUniform>;
     failedToCreate: boolean;
     terrainUniforms: ?TerrainUniformsType;
+    fogUniforms: ?FogUniformsType;
 
     static cacheKey(name: string, defines: string[], programConfiguration: ?ProgramConfiguration): string {
         let key = `${name}${programConfiguration ? programConfiguration.cacheKey : ''}`;
@@ -75,8 +78,8 @@ class Program<Us: UniformBindings> {
         let defines = configuration ? configuration.defines() : [];
         defines = defines.concat(fixedDefines.map((define) => `#define ${define}`));
 
-        const fragmentSource = defines.concat(prelude.fragmentSource, source.fragmentSource).join('\n');
-        const vertexSource = defines.concat(prelude.vertexSource, preludeTerrain.vertexSource, source.vertexSource).join('\n');
+        const fragmentSource = defines.concat(prelude.fragmentSource, preludeCommonSource, preludeFog.fragmentSource, source.fragmentSource).join('\n');
+        const vertexSource = defines.concat(prelude.vertexSource, preludeCommonSource, preludeFog.vertexSource, preludeTerrain.vertexSource, source.vertexSource).join('\n');
         const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
         if (gl.isContextLost()) {
             this.failedToCreate = true;
@@ -127,22 +130,42 @@ class Program<Us: UniformBindings> {
 
         this.fixedUniforms = fixedUniforms(context, uniformLocations);
         this.binderUniforms = configuration ? configuration.getUniforms(context, uniformLocations) : [];
-        if (fixedDefines.indexOf('TERRAIN') !== -1) { this.terrainUniforms = terrainUniforms(context, uniformLocations); }
+        if (fixedDefines.indexOf('TERRAIN') !== -1) {
+            this.terrainUniforms = terrainUniforms(context, uniformLocations);
+        }
+        if (fixedDefines.indexOf('FOG') !== -1) {
+            this.fogUniforms = fogUniforms(context, uniformLocations);
+        }
     }
 
-    setTerrainUniformValues(context: Context, terrainUnformValues: UniformValues<TerrainUniformsType>) {
+    setTerrainUniformValues(context: Context, terrainUniformValues: UniformValues<TerrainUniformsType>) {
         if (!this.terrainUniforms) return;
         const uniforms: TerrainUniformsType = this.terrainUniforms;
 
         if (this.failedToCreate) return;
         context.program.set(this.program);
 
-        for (const name in terrainUnformValues) {
-            uniforms[name].set(terrainUnformValues[name]);
+        for (const name in terrainUniformValues) {
+            uniforms[name].set(terrainUniformValues[name]);
         }
     }
 
-    draw(context: Context,
+    setFogUniformValues(context: Context, fogUniformsValues: UniformValues<FogUniformsType>) {
+        if (!this.fogUniforms) return;
+        const uniforms: FogUniformsType = this.fogUniforms;
+
+        if (this.failedToCreate) return;
+        context.program.set(this.program);
+
+        for (const name in fogUniformsValues) {
+            if (uniforms[name].location) {
+                uniforms[name].set(fogUniformsValues[name]);
+            }
+        }
+    }
+
+    draw(
+         context: Context,
          drawMode: DrawMode,
          depthMode: $ReadOnly<DepthMode>,
          stencilMode: $ReadOnly<StencilMode>,

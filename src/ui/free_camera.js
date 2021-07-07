@@ -1,11 +1,11 @@
 // @flow
 
-import MercatorCoordinate from '../geo/mercator_coordinate';
-import {degToRad, wrap} from '../util/util';
+import MercatorCoordinate, {mercatorZfromAltitude} from '../geo/mercator_coordinate.js';
+import {degToRad, wrap} from '../util/util.js';
 import {vec3, vec4, quat, mat4} from 'gl-matrix';
-import type {Elevation} from '../terrain/elevation';
+import type {Elevation} from '../terrain/elevation.js';
 
-import type {LngLatLike} from '../geo/lng_lat';
+import type {LngLatLike} from '../geo/lng_lat.js';
 
 function getColumn(matrix: mat4, col: number): vec4 {
     return [matrix[col * 4], matrix[col * 4 + 1], matrix[col * 4 + 2], matrix[col * 4 + 3]];
@@ -77,7 +77,7 @@ export function orientationFromFrame(forward: vec3, up: vec3): ?quat {
 }
 
 /**
- * Various options for accessing physical properties of the underlying camera entity.
+ * Options for accessing physical properties of the underlying camera entity.
  * A direct access to these properties allows more flexible and precise controlling of the camera
  * while also being fully compatible and interchangeable with CameraOptions. All fields are optional.
  * See {@link Map#setFreeCameraOptions} and {@link Map#getFreeCameraOptions}
@@ -97,7 +97,9 @@ export function orientationFromFrame(forward: vec3, up: vec3): ?quat {
         Orientation can be set freely but certain constraints still apply
          - Orientation must be representable with only pitch and bearing.
          - Pitch has an upper limit
- */
+ * @see [Animate the camera around a point in 3D terrain](https://docs.mapbox.com/mapbox-gl-js/example/free-camera-point/)
+ * @see [Animate the camera along a path](https://docs.mapbox.com/mapbox-gl-js/example/free-camera-path/)
+*/
 class FreeCameraOptions {
     orientation: ?quat;
     _position: ?MercatorCoordinate;
@@ -131,7 +133,7 @@ class FreeCameraOptions {
             return;
         }
 
-        const altitude = this._elevation ? this._elevation.getAtPoint(MercatorCoordinate.fromLngLat(location)) : 0;
+        const altitude = this._elevation ? this._elevation.getAtPointOrZero(MercatorCoordinate.fromLngLat(location)) : 0;
         const pos: MercatorCoordinate = this.position;
         const target = MercatorCoordinate.fromLngLat(location, altitude);
         const forward = [target.x - pos.x, target.y - pos.y, target.z - pos.z];
@@ -245,6 +247,20 @@ class FreeCamera {
         return cameraToWorld;
     }
 
+    getWorldToCameraPosition(worldSize: number, pixelsPerMeter: number, uniformScale: number): Float64Array {
+        const invPosition = this.position;
+
+        vec3.scale(invPosition, invPosition, -worldSize);
+        const matrix = new Float64Array(16);
+        mat4.fromScaling(matrix, [uniformScale, uniformScale, uniformScale]);
+        mat4.translate(matrix, matrix, invPosition);
+
+        // Adjust scale on z (3rd column 3rd row)
+        matrix[10] *= pixelsPerMeter;
+
+        return matrix;
+    }
+
     getWorldToCamera(worldSize: number, pixelsPerMeter: number): Float64Array {
         // transformation chain from world space to camera space:
         // 1. Height value (z) of renderables is in meters. Scale z coordinate by pixelsPerMeter
@@ -284,6 +300,12 @@ class FreeCamera {
         const matrix = new Float64Array(16);
         mat4.perspective(matrix, fovy, aspectRatio, nearZ, farZ);
         return matrix;
+    }
+
+    getDistanceToElevation(elevationMeters: number): number {
+        const z0 = elevationMeters === 0 ? 0 : mercatorZfromAltitude(elevationMeters, this.position[1]);
+        const f = this.forward();
+        return (z0 - this.position[2]) / f[2];
     }
 
     clone(): FreeCamera {

@@ -1,16 +1,16 @@
 // @flow
 
-import ImageSource from '../source/image_source';
-import StencilMode from '../gl/stencil_mode';
-import DepthMode from '../gl/depth_mode';
-import CullFaceMode from '../gl/cull_face_mode';
-import {rasterUniformValues} from './program/raster_program';
+import ImageSource from '../source/image_source.js';
+import StencilMode from '../gl/stencil_mode.js';
+import DepthMode from '../gl/depth_mode.js';
+import CullFaceMode from '../gl/cull_face_mode.js';
+import {rasterUniformValues} from './program/raster_program.js';
 
-import type Painter from './painter';
-import type SourceCache from '../source/source_cache';
-import type RasterStyleLayer from '../style/style_layer/raster_style_layer';
-import type {OverscaledTileID} from '../source/tile_id';
-import rasterFade from './raster_fade';
+import type Painter from './painter.js';
+import type SourceCache from '../source/source_cache.js';
+import type RasterStyleLayer from '../style/style_layer/raster_style_layer.js';
+import type {OverscaledTileID} from '../source/tile_id.js';
+import rasterFade from './raster_fade.js';
 
 export default drawRaster;
 
@@ -42,11 +42,12 @@ function drawRaster(painter: Painter, sourceCache: SourceCache, layer: RasterSty
         const depthMode = renderingToTexture ? DepthMode.disabled : painter.depthModeForSublayer(coord.overscaledZ - minTileZ,
             layer.paint.get('raster-opacity') === 1 ? DepthMode.ReadWrite : DepthMode.ReadOnly, gl.LESS);
 
+        const unwrappedTileID = coord.toUnwrapped();
         const tile = sourceCache.getTile(coord);
         if (renderingToTexture && !(tile && tile.hasData())) continue;
 
-        const posMatrix = (renderingToTexture) ? coord.posMatrix :
-            painter.transform.calculatePosMatrix(coord.toUnwrapped(), align);
+        const projMatrix = (renderingToTexture) ? coord.projMatrix :
+            painter.transform.calculateProjMatrix(unwrappedTileID, align);
 
         const stencilMode = painter.terrain && renderingToTexture ?
             painter.terrain.stencilModeForRTTOverlap(coord) :
@@ -77,7 +78,9 @@ function drawRaster(painter: Painter, sourceCache: SourceCache, layer: RasterSty
             tile.texture.bind(textureFilter, gl.CLAMP_TO_EDGE, gl.LINEAR_MIPMAP_NEAREST);
         }
 
-        const uniformValues = rasterUniformValues(posMatrix, parentTL || [0, 0], parentScaleBy || 1, fade, layer);
+        const uniformValues = rasterUniformValues(projMatrix, parentTL || [0, 0], parentScaleBy || 1, fade, layer);
+
+        painter.prepareDrawProgram(context, program, unwrappedTileID);
 
         if (source instanceof ImageSource) {
             program.draw(context, gl.TRIANGLES, depthMode, StencilMode.disabled, colorMode, CullFaceMode.disabled,

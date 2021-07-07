@@ -1,12 +1,12 @@
 // @flow
 
-import type SourceCache from './source_cache';
-import type StyleLayer from '../style/style_layer';
-import type CollisionIndex from '../symbol/collision_index';
-import type Transform from '../geo/transform';
-import type {RetainedQueryData} from '../symbol/placement';
-import type {FilterSpecification} from '../style-spec/types';
-import type {QueryGeometry} from '../style/query_geometry';
+import type SourceCache from './source_cache.js';
+import type StyleLayer from '../style/style_layer.js';
+import type CollisionIndex from '../symbol/collision_index.js';
+import type Transform from '../geo/transform.js';
+import type {RetainedQueryData} from '../symbol/placement.js';
+import type {FilterSpecification} from '../style-spec/types.js';
+import type {QueryGeometry} from '../style/query_geometry.js';
 import assert from 'assert';
 import {mat4} from 'gl-matrix';
 
@@ -17,7 +17,7 @@ function getPixelPosMatrix(transform, tileID) {
     const t = mat4.identity([]);
     mat4.scale(t, t, [transform.width * 0.5, -transform.height * 0.5, 1]);
     mat4.translate(t, t, [1, -1, 0]);
-    return mat4.multiply(t, t, transform.calculatePosMatrix(tileID.toUnwrapped()));
+    return mat4.multiply(t, t, transform.calculateProjMatrix(tileID.toUnwrapped()));
 }
 
 export function queryRenderedFeatures(sourceCache: SourceCache,

@@ -1,14 +1,14 @@
-import {test} from '../../util/test';
-import {extend} from '../../../src/util/util';
-import window from '../../../src/util/window';
-import Map from '../../../src/ui/map';
-import {createMap} from '../../util';
-import LngLat from '../../../src/geo/lng_lat';
-import Tile from '../../../src/source/tile';
-import {OverscaledTileID} from '../../../src/source/tile_id';
-import {Event, ErrorEvent} from '../../../src/util/evented';
-import simulate from '../../util/simulate_interaction';
-import {fixedLngLat, fixedNum} from '../../util/fixed';
+import {test} from '../../util/test.js';
+import {extend} from '../../../src/util/util.js';
+import window from '../../../src/util/window.js';
+import Map from '../../../src/ui/map.js';
+import {createMap} from '../../util/index.js';
+import LngLat from '../../../src/geo/lng_lat.js';
+import Tile from '../../../src/source/tile.js';
+import {OverscaledTileID} from '../../../src/source/tile_id.js';
+import {Event, ErrorEvent} from '../../../src/util/evented.js';
+import simulate from '../../util/simulate_interaction.js';
+import {fixedLngLat, fixedNum} from '../../util/fixed.js';
 
 function createStyleSource() {
     return {
@@ -44,7 +44,8 @@ test('Map', (t) => {
         t.ok(map.touchZoomRotate.isEnabled());
         t.throws(() => {
             new Map({
-                container: 'anElementIdWhichDoesNotExistInTheDocument'
+                container: 'anElementIdWhichDoesNotExistInTheDocument',
+                testMode: true
             });
         }, new Error("Container 'anElementIdWhichDoesNotExistInTheDocument' not found"), 'throws on invalid map container id');
         t.end();
@@ -76,15 +77,15 @@ test('Map', (t) => {
     t.test('initial bounds options in constructor options', (t) => {
         const bounds = [[-133, 16], [-68, 50]];
 
-        const map = (fitBoundsOptions, skipCSSStub, skipAuthenticateStub) => {
+        const map = (fitBoundsOptions, skipCSSStub) => {
             const container = window.document.createElement('div');
             Object.defineProperty(container, 'offsetWidth', {value: 512});
             Object.defineProperty(container, 'offsetHeight', {value: 512});
-            return createMap(t, {skipCSSStub, skipAuthenticateStub, container, bounds, fitBoundsOptions});
+            return createMap(t, {skipCSSStub, container, bounds, fitBoundsOptions});
         };
 
-        const unpadded = map(undefined, false, true);
-        const padded = map({padding: 100}, true, true);
+        const unpadded = map(undefined, false);
+        const padded = map({padding: 100}, true);
 
         t.ok(unpadded.getZoom() > padded.getZoom());
 
@@ -133,7 +134,7 @@ test('Map', (t) => {
     t.test('emits load event after a style is set', (t) => {
         t.stub(Map.prototype, '_detectMissingCSS');
         t.stub(Map.prototype, '_authenticate');
-        const map = new Map({container: window.document.createElement('div')});
+        const map = new Map({container: window.document.createElement('div'), testMode: true});
 
         map.on('load', fail);
 
@@ -150,7 +151,7 @@ test('Map', (t) => {
     t.test('#setStyle', (t) => {
         t.test('returns self', (t) => {
             t.stub(Map.prototype, '_detectMissingCSS');
-            const map = new Map({container: window.document.createElement('div')});
+            const map = new Map({container: window.document.createElement('div'), testMode: true});
             t.equal(map.setStyle({
                 version: 8,
                 sources: {},
@@ -230,7 +231,7 @@ test('Map', (t) => {
         t.test('style transform overrides unmodified map transform', (t) => {
             t.stub(Map.prototype, '_detectMissingCSS');
             t.stub(Map.prototype, '_authenticate');
-            const map = new Map({container: window.document.createElement('div')});
+            const map = new Map({container: window.document.createElement('div'), testMode: true});
             map.transform.lngRange = [-120, 140];
             map.transform.latRange = [-60, 80];
             map.transform.resize(600, 400);
@@ -249,7 +250,7 @@ test('Map', (t) => {
         t.test('style transform does not override map transform modified via options', (t) => {
             t.stub(Map.prototype, '_detectMissingCSS');
             t.stub(Map.prototype, '_authenticate');
-            const map = new Map({container: window.document.createElement('div'), zoom: 10, center: [-77.0186, 38.8888]});
+            const map = new Map({container: window.document.createElement('div'), zoom: 10, center: [-77.0186, 38.8888], testMode: true});
             t.notOk(map.transform.unmodified, 'map transform is modified by options');
             map.setStyle(createStyle());
             map.on('style.load', () => {
@@ -264,7 +265,7 @@ test('Map', (t) => {
         t.test('style transform does not override map transform modified via setters', (t) => {
             t.stub(Map.prototype, '_detectMissingCSS');
             t.stub(Map.prototype, '_authenticate');
-            const map = new Map({container: window.document.createElement('div')});
+            const map = new Map({container: window.document.createElement('div'), testMode: true});
             t.ok(map.transform.unmodified);
             map.setZoom(10);
             map.setCenter([-77.0186, 38.8888]);
@@ -339,6 +340,52 @@ test('Map', (t) => {
                     t.equal(initStyleObj.setState.callCount, 1);
                     t.equal(initStyleObj.setTerrain.callCount, 1);
                     t.ok(map.style.terrain);
+                    t.end();
+                });
+            });
+
+            t.end();
+        });
+
+        t.test('updating fog triggers style diffing using setFog operation', (t) => {
+            t.test('removing fog', (t) => {
+                const style = createStyle();
+                style['fog'] = {
+                    "range": [2, 5],
+                    "color": "white"
+                };
+                const map = createMap(t, {style});
+                const initStyleObj = map.style;
+                t.spy(initStyleObj, 'setFog');
+                t.spy(initStyleObj, 'setState');
+                map.on('style.load', () => {
+                    map.setStyle(createStyle());
+                    t.equal(initStyleObj, map.style);
+                    t.equal(initStyleObj.setState.callCount, 1);
+                    t.equal(initStyleObj.setFog.callCount, 1);
+                    t.ok(map.style.fog == null);
+                    t.end();
+                });
+            });
+
+            t.test('adding fog', (t) => {
+                const style = createStyle();
+                const map = createMap(t, {style});
+                const initStyleObj = map.style;
+                t.spy(initStyleObj, 'setFog');
+                t.spy(initStyleObj, 'setState');
+                map.on('style.load', () => {
+                    const styleWithFog = JSON.parse(JSON.stringify(style));
+
+                    styleWithFog['fog'] = {
+                        "range": [2, 5],
+                        "color": "white"
+                    };
+                    map.setStyle(styleWithFog);
+                    t.equal(initStyleObj, map.style);
+                    t.equal(initStyleObj.setState.callCount, 1);
+                    t.equal(initStyleObj.setFog.callCount, 1);
+                    t.ok(map.style.fog);
                     t.end();
                 });
             });
@@ -435,6 +482,40 @@ test('Map', (t) => {
                 t.deepEqual(map.getStyle(), extend(createStyle(), {
                     terrain, 'sources': map.getStyle().sources
                 }));
+                t.end();
+            });
+        });
+
+        t.test('returns the style with added fog', (t) => {
+            const style = createStyle();
+            const map = createMap(t, {style});
+
+            map.on('load', () => {
+                const fog = {
+                    "range": [2, 5],
+                    "color": "blue"
+                };
+                map.setFog(fog);
+                t.deepEqual(map.getStyle(), extend(createStyle(), {
+                    fog
+                }));
+                t.ok(map.getFog());
+                t.end();
+            });
+        });
+
+        t.test('returns the style with removed fog', (t) => {
+            const style = createStyle();
+            style['fog'] = {
+                "range": [2, 5],
+                "color": "white"
+            };
+            const map = createMap(t, {style});
+
+            map.on('load', () => {
+                map.setFog(null);
+                t.deepEqual(map.getStyle(), createStyle());
+                t.equal(map.getFog(), null);
                 t.end();
             });
         });
@@ -687,7 +768,7 @@ test('Map', (t) => {
             [ 70.31249999999977, 57.32652122521695 ] ]));
 
         t.test('rotated bounds', (t) => {
-            const map = createMap(t, {zoom: 1, bearing: 45, skipCSSStub: true, skipAuthenticateStub: true});
+            const map = createMap(t, {zoom: 1, bearing: 45, skipCSSStub: true});
             t.deepEqual(
                 toFixed([[-49.718445552178764, -44.44541580601936], [49.7184455522, 44.445415806019355]]),
                 toFixed(map.getBounds().toArray())
@@ -696,6 +777,24 @@ test('Map', (t) => {
             map.setBearing(135);
             t.deepEqual(
                 toFixed([[-49.718445552178764, -44.44541580601936], [49.7184455522, 44.445415806019355]]),
+                toFixed(map.getBounds().toArray())
+            );
+
+            t.end();
+        });
+
+        t.test('padded bounds', (t) => {
+            const map = createMap(t, {zoom: 1, bearing: 45, skipCSSStub: true});
+
+            map.setPadding({
+                left: 100,
+                right: 10,
+                top: 10,
+                bottom: 10
+            });
+
+            t.deepEqual(
+                toFixed([[-33.5599507477, -31.7907658998], [33.5599507477, 31.7907658998]]),
                 toFixed(map.getBounds().toArray())
             );
 
@@ -1140,6 +1239,55 @@ test('Map', (t) => {
             t.equals(images.length, 1);
             t.equals(images[0], 'img');
             t.end();
+        });
+    });
+
+    t.test('#queryFogOpacity', (t) => {
+        const style = createStyle();
+        const map = createMap(t, {style});
+        map.on('load', () => {
+            map.setFog({
+                "range": [0.5, 10.5]
+            });
+
+            t.ok(map.getFog());
+
+            map.once('render', () => {
+                map.setZoom(10);
+                map.setCenter([0, 0]);
+                map.setPitch(0);
+
+                t.deepEqual(map._queryFogOpacity([0, 0]), 0.0);
+
+                t.deepEqual(map._queryFogOpacity([50, 0]), 0.0);
+                t.deepEqual(map._queryFogOpacity([0, 50]), 0.0);
+                t.deepEqual(map._queryFogOpacity([-50, 0]), 0.0);
+                t.deepEqual(map._queryFogOpacity([-50, -50]), 0.0);
+
+                map.setBearing(90);
+                map.setPitch(70);
+
+                t.deepEqual(map._queryFogOpacity([0, 0]), 0.0);
+
+                t.deepEqual(map._queryFogOpacity([0.5, 0]), 0.5963390859543484);
+                t.deepEqual(map._queryFogOpacity([0, 0.5]), 0.31817612773293763);
+                t.deepEqual(map._queryFogOpacity([-0.5, 0]), 0.0021931905967484703);
+                t.deepEqual(map._queryFogOpacity([-0.5, -0.5]), 0.4147318524978687);
+
+                t.deepEqual(map._queryFogOpacity([2, 0]), 1.0);
+                t.deepEqual(map._queryFogOpacity([0, 2]), 1.0);
+                t.deepEqual(map._queryFogOpacity([-2, 0]), 1.0);
+                t.deepEqual(map._queryFogOpacity([-2, -2]), 1.0);
+
+                map.transform.fov = 30;
+
+                t.deepEqual(map._queryFogOpacity([0.5, 0]), 0.5917784571074153);
+                t.deepEqual(map._queryFogOpacity([0, 0.5]), 0.2567224170602245);
+                t.deepEqual(map._queryFogOpacity([-0.5, 0]), 0);
+                t.deepEqual(map._queryFogOpacity([-0.5, -0.5]), 0.2727527139608868);
+
+                t.end();
+            });
         });
     });
 
@@ -2153,7 +2301,7 @@ test('Map', (t) => {
         window.document.styleSheets[0] = styleSheet;
         window.document.styleSheets.length = 1;
 
-        new Map({container: window.document.createElement('div')});
+        new Map({container: window.document.createElement('div'), testMode: true});
 
         t.notok(stub.calledOnce);
         t.end();
@@ -2161,7 +2309,7 @@ test('Map', (t) => {
 
     t.test('should warn when CSS is missing', (t) => {
         const stub = t.stub(console, 'warn');
-        new Map({container: window.document.createElement('div')});
+        new Map({container: window.document.createElement('div'), testMode: true});
 
         t.ok(stub.calledOnce);
 

@@ -3,10 +3,10 @@
 import {getTileBBox} from '@cgcs2000/whoots-js';
 import EXTENT from '../data/extent';
 import Point from '@mapbox/point-geometry';
-import MercatorCoordinate, {altitudeFromMercatorZ} from '../geo/mercator_coordinate';
-import {MAX_SAFE_INTEGER} from '../util/util';
+import MercatorCoordinate, {altitudeFromMercatorZ} from '../geo/mercator_coordinate.js';
+import {MAX_SAFE_INTEGER} from '../util/util.js';
 import assert from 'assert';
-import {register} from '../util/web_worker_transfer';
+import {register} from '../util/web_worker_transfer.js';
 import {vec3} from 'gl-matrix';
 
 export class CanonicalTileID {
@@ -79,7 +79,7 @@ export class OverscaledTileID {
     wrap: number;
     canonical: CanonicalTileID;
     key: number;
-    posMatrix: Float32Array;
+    projMatrix: Float32Array;
 
     constructor(overscaledZ: number, wrap: number, z: number, x: number, y: number) {
         assert(overscaledZ >= z);
@@ -219,4 +219,4 @@ function getQuadkey(z, x, y) {
 }
 
 register('CanonicalTileID', CanonicalTileID);
-register('OverscaledTileID', OverscaledTileID, {omit: ['posMatrix']});
+register('OverscaledTileID', OverscaledTileID, {omit: ['projMatrix']});

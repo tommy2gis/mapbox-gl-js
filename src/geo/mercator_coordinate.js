@@ -1,8 +1,8 @@
 // @flow
 
-import LngLat, {earthRadius} from '../geo/lng_lat';
-import { clamp } from '../util/util';
-import type {LngLatLike} from '../geo/lng_lat';
+import LngLat, {earthRadius} from '../geo/lng_lat.js';
+import {clamp} from '../util/util.js';
+import type {LngLatLike} from '../geo/lng_lat.js';
 
 /*
  * The average circumference of the world in meters.

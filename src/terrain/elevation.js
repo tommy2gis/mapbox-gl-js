@@ -1,31 +1,55 @@
 // @flow
 
-import MercatorCoordinate, {mercatorZfromAltitude} from '../geo/mercator_coordinate';
-import DEMData from '../data/dem_data';
-import SourceCache from '../source/source_cache';
-import {number as interpolate} from '../style-spec/util/interpolate';
-import EXTENT from '../data/extent';
+import MercatorCoordinate, {mercatorZfromAltitude} from '../geo/mercator_coordinate.js';
+import DEMData from '../data/dem_data.js';
+import SourceCache from '../source/source_cache.js';
+import {number as interpolate} from '../style-spec/util/interpolate.js';
+import EXTENT from '../data/extent.js';
 import {vec3} from 'gl-matrix';
 import Point from '@mapbox/point-geometry';
-import {OverscaledTileID} from '../source/tile_id';
+import {OverscaledTileID} from '../source/tile_id.js';
 
-import type Tile from '../source/tile';
+import type Tile from '../source/tile.js';
+
+/**
+ * Options common to {@link Map#queryTerrainElevation} and {@link Map#unproject3d}, used to control how elevation
+ * data is returned.
+ *
+ * @typedef {Object} ElevationQueryOptions
+ * @property {boolean} exaggerated When set to `true` returns the value of the elevation with the terrains `exaggeration` on the style already applied,
+ * when`false` it returns the raw value of the underlying data without styling applied.
+ */
+export type ElevationQueryOptions = {
+    exaggerated: boolean
+};
 
 /**
  * Provides access to elevation data from raster-dem source cache.
  */
 export class Elevation {
+    /**
+     * Helper around `getAtPoint` that guarantees that a numeric value is returned.
+     * @param point
+     * @param defaultIfNotLoaded
+     */
+    getAtPointOrZero(point: MercatorCoordinate, defaultIfNotLoaded: number = 0): number {
+        return this.getAtPoint(point, defaultIfNotLoaded) || 0;
+    }
 
     /**
      * Altitude above sea level in meters at specified point.
      * @param {MercatorCoordinate} point Mercator coordinate of the point.
      * @param {number} defaultIfNotLoaded Value that is returned if the dem tile of the provided point is not loaded
+     * @param exaggerated
      * @returns {number} Altitude in meters.
      * If there is no loaded tile that carries information for the requested
      * point elevation, returns `defaultIfNotLoaded`.
      * Doesn't invoke network request to fetch the data.
      */
-    getAtPoint(point: MercatorCoordinate, defaultIfNotLoaded: number = 0): number {
+    getAtPoint(point: MercatorCoordinate, defaultIfNotLoaded: ?number, exaggerated: boolean = true): number | null {
+        // Force a cast to null for both null and undefined
+        if (defaultIfNotLoaded == null) defaultIfNotLoaded = null;
+
         const src = this._source();
         if (!src) return defaultIfNotLoaded;
         if (point.y < 0.0 || point.y > 1.0) {
@@ -45,8 +69,9 @@ export class Elevation {
         const y = (point.y * tilesAtTileZoom - demTile.tileID.canonical.y) * dem.dim;
         const i = Math.floor(x);
         const j = Math.floor(y);
+        const exaggeration = exaggerated ? this.exaggeration() : 1;
 
-        return this.exaggeration() * interpolate(
+        return exaggeration * interpolate(
             interpolate(dem.get(i, j), dem.get(i, j + 1), y - j),
             interpolate(dem.get(i + 1, j), dem.get(i + 1, j + 1), y - j),
             x - i);
@@ -57,7 +82,7 @@ export class Elevation {
      */
     getAtTileOffset(tileID: OverscaledTileID, x: number, y: number): number {
         const tilesAtTileZoom = 1 << tileID.canonical.z;
-        return this.getAtPoint(new MercatorCoordinate(
+        return this.getAtPointOrZero(new MercatorCoordinate(
             tileID.wrap + (tileID.canonical.x + x / EXTENT) / tilesAtTileZoom,
             (tileID.canonical.y + y / EXTENT) / tilesAtTileZoom));
     }
@@ -107,6 +132,17 @@ export class Elevation {
     }
 
     /**
+     * Get elevation minimum below MSL for the visible tiles. This function accounts
+     * for terrain exaggeration and is conservative based on the maximum DEM error,
+     * do not expect accurate values from this function.
+     * If no negative elevation is visible, this function returns 0.
+     * @returns {number} The min elevation below sea level of all visible tiles.
+     */
+    getMinElevationBelowMSL(): number {
+        throw new Error('Pure virtual method called.');
+    }
+
+    /**
      * Performs raycast against visible DEM tiles on the screen and returns the distance travelled along the ray.
      * x & y components of the position are expected to be in normalized mercator coordinates [0, 1] and z in meters.
      * @param {vec3} position The ray origin.
@@ -119,10 +155,8 @@ export class Elevation {
 
     /**
      * Given a point on screen, returns 3D MercatorCoordinate on terrain.
-     * Reconstructs a picked world position by casting a ray from screen coordinates
-     * and sampling depth from the custom depth buffer. This function (currently) introduces
-     * a potential stall (few frames) due to it reading pixel information from the gpu.
-     * Depth buffer will also be generated if it doesn't already exist.
+     * Helper function that wraps `raycast`.
+     *
      * @param {Point} screenPoint Screen point in pixels in top-left origin coordinate system.
      * @returns {vec3} If there is intersection with terrain, returns 3D MercatorCoordinate's of
      * intersection, as vec3(x, y, z), otherwise null.

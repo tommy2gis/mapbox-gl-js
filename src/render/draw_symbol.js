@@ -1,38 +1,38 @@
 // @flow
 
 import Point from '@mapbox/point-geometry';
-import drawCollisionDebug from './draw_collision_debug';
+import drawCollisionDebug from './draw_collision_debug.js';
 
-import SegmentVector from '../data/segment';
-import pixelsToTileUnits from '../source/pixels_to_tile_units';
-import * as symbolProjection from '../symbol/projection';
-import * as symbolSize from '../symbol/symbol_size';
+import SegmentVector from '../data/segment.js';
+import pixelsToTileUnits from '../source/pixels_to_tile_units.js';
+import * as symbolProjection from '../symbol/projection.js';
+import * as symbolSize from '../symbol/symbol_size.js';
 import {mat4} from 'gl-matrix';
 const identityMat4 = mat4.identity(new Float32Array(16));
-import StencilMode from '../gl/stencil_mode';
-import DepthMode from '../gl/depth_mode';
-import CullFaceMode from '../gl/cull_face_mode';
-import {addDynamicAttributes} from '../data/bucket/symbol_bucket';
-import {getAnchorAlignment, WritingMode} from '../symbol/shaping';
-import ONE_EM from '../symbol/one_em';
-import {evaluateVariableOffset} from '../symbol/symbol_layout';
-import Tile from '../source/tile';
+import StencilMode from '../gl/stencil_mode.js';
+import DepthMode from '../gl/depth_mode.js';
+import CullFaceMode from '../gl/cull_face_mode.js';
+import {addDynamicAttributes} from '../data/bucket/symbol_bucket.js';
+import {getAnchorAlignment, WritingMode} from '../symbol/shaping.js';
+import ONE_EM from '../symbol/one_em.js';
+import {evaluateVariableOffset} from '../symbol/symbol_layout.js';
+import Tile from '../source/tile.js';
 
 import {
     symbolIconUniformValues,
     symbolSDFUniformValues,
     symbolTextAndIconUniformValues
-} from './program/symbol_program';
+} from './program/symbol_program.js';
 
-import type Painter from './painter';
-import type SourceCache from '../source/source_cache';
-import type SymbolStyleLayer from '../style/style_layer/symbol_style_layer';
-import type SymbolBucket, {SymbolBuffers} from '../data/bucket/symbol_bucket';
-import type Texture from '../render/texture';
-import type {OverscaledTileID} from '../source/tile_id';
-import type {UniformValues} from './uniform_binding';
-import type {SymbolSDFUniformsType} from '../render/program/symbol_program';
-import type {CrossTileID, VariableOffset} from '../symbol/placement';
+import type Painter from './painter.js';
+import type SourceCache from '../source/source_cache.js';
+import type SymbolStyleLayer from '../style/style_layer/symbol_style_layer.js';
+import type SymbolBucket, {SymbolBuffers} from '../data/bucket/symbol_bucket.js';
+import type Texture from '../render/texture.js';
+import type {OverscaledTileID} from '../source/tile_id.js';
+import type {UniformValues} from './uniform_binding.js';
+import type {SymbolSDFUniformsType} from '../render/program/symbol_program.js';
+import type {CrossTileID, VariableOffset} from '../symbol/placement.js';
 
 export default drawSymbols;
 
@@ -127,7 +127,7 @@ function updateVariableAnchors(coords, painter, layer, sourceCache, rotationAlig
         const size = symbolSize.evaluateSizeForZoom(sizeData, tr.zoom);
 
         const pixelToTileScale = pixelsToTileUnits(tile, 1, painter.transform.zoom);
-        const labelPlaneMatrix = symbolProjection.getLabelPlaneMatrix(coord.posMatrix, pitchWithMap, rotateWithMap, painter.transform, pixelToTileScale);
+        const labelPlaneMatrix = symbolProjection.getLabelPlaneMatrix(coord.projMatrix, pitchWithMap, rotateWithMap, painter.transform, pixelToTileScale);
         const updateTextFitIcon = layer.layout.get('icon-text-fit') !== 'none' &&  bucket.hasIconData();
 
         if (size) {
@@ -135,7 +135,7 @@ function updateVariableAnchors(coords, painter, layer, sourceCache, rotationAlig
             const elevation = tr.elevation;
             const getElevation = elevation ? (p => elevation.getAtTileOffset(coord, p.x, p.y)) : (_ => 0);
             updateVariableAnchorsForBucket(bucket, rotateWithMap, pitchWithMap, variableOffsets, symbolSize,
-                                  tr, labelPlaneMatrix, coord.posMatrix, tileScale, size, updateTextFitIcon, getElevation);
+                                  tr, labelPlaneMatrix, coord.projMatrix, tileScale, size, updateTextFitIcon, getElevation);
         }
     }
 }
@@ -292,10 +292,10 @@ function drawLayerSymbols(painter, sourceCache, layer, coords, isText, translate
         }
 
         const s = pixelsToTileUnits(tile, 1, painter.transform.zoom);
-        const labelPlaneMatrix = symbolProjection.getLabelPlaneMatrix(coord.posMatrix, pitchWithMap, rotateWithMap, painter.transform, s);
+        const labelPlaneMatrix = symbolProjection.getLabelPlaneMatrix(coord.projMatrix, pitchWithMap, rotateWithMap, painter.transform, s);
         // labelPlaneMatrixInv is used for converting vertex pos to tile coordinates needed for sampling elevation.
         const labelPlaneMatrixInv = painter.terrain && pitchWithMap && alongLine ? mat4.invert(new Float32Array(16), labelPlaneMatrix) : identityMat4;
-        const glCoordMatrix = symbolProjection.getGlCoordMatrix(coord.posMatrix, pitchWithMap, rotateWithMap, painter.transform, s);
+        const glCoordMatrix = symbolProjection.getGlCoordMatrix(coord.projMatrix, pitchWithMap, rotateWithMap, painter.transform, s);
 
         const hasVariableAnchors = variablePlacement && bucket.hasTextData();
         const updateTextFitIcon = layer.layout.get('icon-text-fit') !== 'none' &&
@@ -305,10 +305,10 @@ function drawLayerSymbols(painter, sourceCache, layer, coords, isText, translate
         if (alongLine) {
             const elevation = tr.elevation;
             const getElevation = elevation ? (p => elevation.getAtTileOffset(coord, p.x, p.y)) : null;
-            symbolProjection.updateLineLabels(bucket, coord.posMatrix, painter, isText, labelPlaneMatrix, glCoordMatrix, pitchWithMap, keepUpright, getElevation);
+            symbolProjection.updateLineLabels(bucket, coord.projMatrix, painter, isText, labelPlaneMatrix, glCoordMatrix, pitchWithMap, keepUpright, getElevation);
         }
 
-        const matrix = painter.translatePosMatrix(coord.posMatrix, tile, translate, translateAnchor),
+        const matrix = painter.translatePosMatrix(coord.projMatrix, tile, translate, translateAnchor),
             uLabelPlaneMatrix = (alongLine || (isText && variablePlacement) || updateTextFitIcon) ? identityMat4 : labelPlaneMatrix,
             uglCoordMatrix = painter.translatePosMatrix(glCoordMatrix, tile, translate, translateAnchor, true);
 

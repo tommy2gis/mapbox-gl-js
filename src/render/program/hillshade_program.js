@@ -9,17 +9,17 @@ import {
     UniformColor,
     UniformMatrix4f,
     Uniform4f
-} from '../uniform_binding';
-import EXTENT from '../../data/extent';
-import MercatorCoordinate from '../../geo/mercator_coordinate';
+} from '../uniform_binding.js';
+import EXTENT from '../../data/extent.js';
+import MercatorCoordinate from '../../geo/mercator_coordinate.js';
 
-import type Context from '../../gl/context';
-import type {UniformValues, UniformLocations} from '../uniform_binding';
-import type Tile from '../../source/tile';
-import type Painter from '../painter';
-import type HillshadeStyleLayer from '../../style/style_layer/hillshade_style_layer';
-import type DEMData from '../../data/dem_data';
-import type {OverscaledTileID} from '../../source/tile_id';
+import type Context from '../../gl/context.js';
+import type {UniformValues, UniformLocations} from '../uniform_binding.js';
+import type Tile from '../../source/tile.js';
+import type Painter from '../painter.js';
+import type HillshadeStyleLayer from '../../style/style_layer/hillshade_style_layer.js';
+import type DEMData from '../../data/dem_data.js';
+import type {OverscaledTileID} from '../../source/tile_id.js';
 
 export type HillshadeUniformsType = {|
     'u_matrix': UniformMatrix4f,
@@ -74,7 +74,7 @@ const hillshadeUniformValues = (
     }
     const align = !painter.options.moving;
     return {
-        'u_matrix': matrix ? matrix : painter.transform.calculatePosMatrix(tile.tileID.toUnwrapped(), align),
+        'u_matrix': matrix ? matrix : painter.transform.calculateProjMatrix(tile.tileID.toUnwrapped(), align),
         'u_image': 0,
         'u_latrange': getTileLatRange(painter, tile.tileID),
         'u_light': [layer.paint.get('hillshade-exaggeration'), azimuthal],

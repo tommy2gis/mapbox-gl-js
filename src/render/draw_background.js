@@ -1,17 +1,17 @@
 // @flow
 
-import StencilMode from '../gl/stencil_mode';
-import DepthMode from '../gl/depth_mode';
-import CullFaceMode from '../gl/cull_face_mode';
+import StencilMode from '../gl/stencil_mode.js';
+import DepthMode from '../gl/depth_mode.js';
+import CullFaceMode from '../gl/cull_face_mode.js';
 import {
     backgroundUniformValues,
     backgroundPatternUniformValues
-} from './program/background_program';
-import {OverscaledTileID} from '../source/tile_id';
+} from './program/background_program.js';
+import {OverscaledTileID} from '../source/tile_id.js';
 
-import type Painter from './painter';
-import type SourceCache from '../source/source_cache';
-import type BackgroundStyleLayer from '../style/style_layer/background_style_layer';
+import type Painter from './painter.js';
+import type SourceCache from '../source/source_cache.js';
+import type BackgroundStyleLayer from '../style/style_layer/background_style_layer.js';
 
 export default drawBackground;
 
@@ -46,12 +46,15 @@ function drawBackground(painter: Painter, sourceCache: SourceCache, layer: Backg
 
     const crossfade = layer.getCrossfadeParameters();
     for (const tileID of tileIDs) {
-        const matrix = coords ? tileID.posMatrix : painter.transform.calculatePosMatrix(tileID.toUnwrapped());
+        const unwrappedTileID = tileID.toUnwrapped();
+        const matrix = coords ? tileID.projMatrix : painter.transform.calculateProjMatrix(unwrappedTileID);
         painter.prepareDrawTile(tileID);
 
         const uniformValues = image ?
             backgroundPatternUniformValues(matrix, opacity, painter, image, {tileID, tileSize}, crossfade) :
             backgroundUniformValues(matrix, opacity, color);
+
+        painter.prepareDrawProgram(context, program, unwrappedTileID);
 
         program.draw(context, gl.TRIANGLES, depthMode, stencilMode, colorMode, CullFaceMode.disabled,
             uniformValues, layer.id, painter.tileExtentBuffer,

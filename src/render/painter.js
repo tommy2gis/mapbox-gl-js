@@ -1,45 +1,47 @@
 // @flow
 
-import browser from '../util/browser';
-import window from '../util/window';
+import browser from '../util/browser.js';
+import window from '../util/window.js';
 
 import {mat4} from 'gl-matrix';
-import SourceCache from '../source/source_cache';
-import EXTENT from '../data/extent';
-import pixelsToTileUnits from '../source/pixels_to_tile_units';
-import SegmentVector from '../data/segment';
-import {RasterBoundsArray, PosArray, TriangleIndexArray, LineStripIndexArray} from '../data/array_types';
-import {values, MAX_SAFE_INTEGER} from '../util/util';
-import rasterBoundsAttributes from '../data/raster_bounds_attributes';
-import posAttributes from '../data/pos_attributes';
-import ProgramConfiguration from '../data/program_configuration';
-import CrossTileSymbolIndex from '../symbol/cross_tile_symbol_index';
-import * as shaders from '../shaders';
-import Program from './program';
-import {programUniforms} from './program/program_uniforms';
-import Context from '../gl/context';
-import DepthMode from '../gl/depth_mode';
-import StencilMode from '../gl/stencil_mode';
-import ColorMode from '../gl/color_mode';
-import CullFaceMode from '../gl/cull_face_mode';
-import Texture from './texture';
-import {clippingMaskUniformValues} from './program/clipping_mask_program';
-import Color from '../style-spec/util/color';
-import symbol from './draw_symbol';
-import circle from './draw_circle';
+import SourceCache from '../source/source_cache.js';
+import EXTENT from '../data/extent.js';
+import pixelsToTileUnits from '../source/pixels_to_tile_units.js';
+import SegmentVector from '../data/segment.js';
+import {RasterBoundsArray, PosArray, TriangleIndexArray, LineStripIndexArray} from '../data/array_types.js';
+import {values, MAX_SAFE_INTEGER} from '../util/util.js';
+import {isMapAuthenticated} from '../util/mapbox.js';
+import rasterBoundsAttributes from '../data/raster_bounds_attributes.js';
+import posAttributes from '../data/pos_attributes.js';
+import ProgramConfiguration from '../data/program_configuration.js';
+import CrossTileSymbolIndex from '../symbol/cross_tile_symbol_index.js';
+import shaders from '../shaders/shaders.js';
+import Program from './program.js';
+import {programUniforms} from './program/program_uniforms.js';
+import Context from '../gl/context.js';
+import {fogUniformValues} from '../render/fog.js';
+import DepthMode from '../gl/depth_mode.js';
+import StencilMode from '../gl/stencil_mode.js';
+import ColorMode from '../gl/color_mode.js';
+import CullFaceMode from '../gl/cull_face_mode.js';
+import Texture from './texture.js';
+import {clippingMaskUniformValues} from './program/clipping_mask_program.js';
+import Color from '../style-spec/util/color.js';
+import symbol from './draw_symbol.js';
+import circle from './draw_circle.js';
 import assert from 'assert';
-import heatmap from './draw_heatmap';
-import line from './draw_line';
-import fill from './draw_fill';
-import fillExtrusion from './draw_fill_extrusion';
-import hillshade from './draw_hillshade';
-import raster from './draw_raster';
-import background from './draw_background';
-import debug, {drawDebugPadding, drawDebugQueryGeometry} from './draw_debug';
-import custom from './draw_custom';
-import sky from './draw_sky';
-import {Terrain} from '../terrain/terrain';
-import {Debug} from '../util/debug';
+import heatmap from './draw_heatmap.js';
+import line from './draw_line.js';
+import fill from './draw_fill.js';
+import fillExtrusion from './draw_fill_extrusion.js';
+import hillshade from './draw_hillshade.js';
+import raster from './draw_raster.js';
+import background from './draw_background.js';
+import debug, {drawDebugPadding, drawDebugQueryGeometry} from './draw_debug.js';
+import custom from './draw_custom.js';
+import sky from './draw_sky.js';
+import {Terrain} from '../terrain/terrain.js';
+import {Debug} from '../util/debug.js';
 
 const draw = {
     symbol,
@@ -56,20 +58,20 @@ const draw = {
     custom
 };
 
-import type Transform from '../geo/transform';
-import type Tile from '../source/tile';
-import type {OverscaledTileID} from '../source/tile_id';
-import type Style from '../style/style';
-import type StyleLayer from '../style/style_layer';
-import type {CrossFaded} from '../style/properties';
-import type LineAtlas from './line_atlas';
-import type ImageManager from './image_manager';
-import type GlyphManager from './glyph_manager';
-import type VertexBuffer from '../gl/vertex_buffer';
-import type IndexBuffer from '../gl/index_buffer';
-import type {DepthRangeType, DepthMaskType, DepthFuncType} from '../gl/types';
-import type ResolvedImage from '../style-spec/expression/types/resolved_image';
-import type {DynamicDefinesType} from './program/program_uniforms';
+import type Transform from '../geo/transform.js';
+import type Tile from '../source/tile.js';
+import type {OverscaledTileID, UnwrappedTileID} from '../source/tile_id.js';
+import type Style from '../style/style.js';
+import type StyleLayer from '../style/style_layer.js';
+import type {CrossFaded} from '../style/properties.js';
+import type LineAtlas from './line_atlas.js';
+import type ImageManager from './image_manager.js';
+import type GlyphManager from './glyph_manager.js';
+import type VertexBuffer from '../gl/vertex_buffer.js';
+import type IndexBuffer from '../gl/index_buffer.js';
+import type {DepthRangeType, DepthMaskType, DepthFuncType} from '../gl/types.js';
+import type ResolvedImage from '../style-spec/expression/types/resolved_image.js';
+import type {DynamicDefinesType} from './program/program_uniforms.js';
 
 export type RenderPass = 'offscreen' | 'opaque' | 'translucent' | 'sky';
 export type CanvasCopyInstances = {
@@ -80,6 +82,7 @@ export type CanvasCopyInstances = {
 type PainterOptions = {
     showOverdrawInspector: boolean,
     showTileBoundaries: boolean,
+    showTerrainWireframe: boolean,
     showQueryGeometry: boolean,
     showPadding: boolean,
     rotating: boolean,
@@ -137,6 +140,7 @@ class Painter {
     symbolFadeChange: number;
     gpuTimers: {[_: string]: any };
     emptyTexture: Texture;
+    identityMat: mat4;
     debugOverlayTexture: Texture;
     debugOverlayCanvas: HTMLCanvasElement;
     _terrain: ?Terrain;
@@ -173,6 +177,22 @@ class Painter {
         const terrain: Terrain = this._terrain;
         this.transform.elevation = enabled ? terrain : null;
         terrain.update(style, this.transform, cameraChanging);
+    }
+
+    _updateFog(style: Style) {
+        const fog = style.fog;
+        if (!fog || fog.getOpacity(this.transform.pitch) < 1 || fog.properties.get('horizon-blend') < 0.03) {
+            this.transform.fogCullDistSq = null;
+            return;
+        }
+
+        // We start culling where the fog opacity function hits
+        // 98% which leaves a non-noticeable change threshold.
+        const [start, end] = fog.getFovAdjustedRange(this.transform._fov);
+        const fogBoundFraction = 0.78;
+        const fogCullDist = start + (end - start) * fogBoundFraction;
+
+        this.transform.fogCullDistSq = fogCullDist * fogCullDist;
     }
 
     get terrain(): ?Terrain {
@@ -249,6 +269,8 @@ class Painter {
             data: new Uint8Array([0, 0, 0, 0])
         }, context.gl.RGBA);
 
+        this.identityMat = mat4.create();
+
         const gl = this.context.gl;
         this.stencilClearMode = new StencilMode({func: gl.ALWAYS, mask: 0}, 0x0, 0xFF, gl.ZERO, gl.ZERO, gl.ZERO);
         this.loadTimeStamps.push(window.performance.now());
@@ -307,7 +329,7 @@ class Painter {
             program.draw(context, gl.TRIANGLES, DepthMode.disabled,
                 // Tests will always pass, and ref value will be written to stencil buffer.
                 new StencilMode({func: gl.ALWAYS, mask: 0}, id, 0xFF, gl.KEEP, gl.KEEP, gl.REPLACE),
-                ColorMode.disabled, CullFaceMode.disabled, clippingMaskUniformValues(tileID.posMatrix),
+                ColorMode.disabled, CullFaceMode.disabled, clippingMaskUniformValues(tileID.projMatrix),
                 '$clipping', this.tileExtentBuffer,
                 this.quadTriangleIndexBuffer, this.tileExtentSegments);
         }
@@ -441,6 +463,9 @@ class Painter {
             this.opaquePassCutoff = 0;
         }
 
+        // Following line is billing related code. Do not change. See LICENSE.txt
+        if (!isMapAuthenticated(this.context.gl)) return;
+
         // Offscreen pass ===============================================
         // We first do all rendering that requires rendering to a separate
         // framebuffer, and then save those for rendering back to the map
@@ -472,7 +497,12 @@ class Painter {
         this.context.viewport.set([0, 0, this.width, this.height]);
 
         // Clear buffers in preparation for drawing to the main framebuffer
-        this.context.clear({color: options.showOverdrawInspector ? Color.black : Color.transparent, depth: 1});
+        // If fog is enabled, use the fog color as default clear color.
+        let clearColor = Color.transparent;
+        if (this.style.fog) {
+            clearColor = this.style.fog.properties.get('color');
+        }
+        this.context.clear({color: options.showOverdrawInspector ? Color.black : clearColor, depth: 1});
         this.clearStencil();
 
         this._showOverdrawInspector = options.showOverdrawInspector;
@@ -720,9 +750,15 @@ class Painter {
     currentGlobalDefines(): string[] {
         const terrain = this.terrain && !this.terrain.renderingToTexture; // Enables elevation sampling in vertex shader.
         const rtt = this.terrain && this.terrain.renderingToTexture;
-
+        const fog = this.style && this.style.fog;
         const defines = [];
+
         if (terrain) defines.push('TERRAIN');
+        // When terrain is active, fog is rendered as part of draping, not as part of tile
+        // rendering. Removing the fog flag during tile rendering avoids additional defines.
+        if (fog && !rtt && fog.getOpacity(this.transform.pitch) !== 0.0) {
+            defines.push('FOG');
+        }
         if (rtt) defines.push('RENDER_TO_TEXTURE');
         if (this._showOverdrawInspector) defines.push('OVERDRAW_INSPECTOR');
         return defines;
@@ -755,6 +791,8 @@ class Painter {
         // The default values for this state is meaningful and often expected.
         // Leaving this state dirty could cause a lot of confusion for users.
         this.context.cullFace.setDefault();
+        this.context.frontFace.setDefault();
+        this.context.cullFaceSide.setDefault();
         this.context.activeTexture.setDefault();
         this.context.pixelStoreUnpack.setDefault();
         this.context.pixelStoreUnpackPremultiplyAlpha.setDefault();
@@ -797,6 +835,24 @@ class Painter {
         }
     }
 
+    prepareDrawProgram(context: Context, program: Program<*>, tileID: ?UnwrappedTileID) {
+
+        // Fog is not enabled when rendering to texture so we
+        // can safely skip uploading uniforms in that case
+        if (this.terrain && this.terrain.renderingToTexture) {
+            return;
+        }
+
+        const fog = this.style.fog;
+
+        if (fog) {
+            const fogOpacity = fog.getOpacity(this.transform.pitch);
+            if (fogOpacity !== 0.0) {
+                program.setFogUniformValues(context, fogUniformValues(this, fog, tileID, fogOpacity));
+            }
+        }
+    }
+
     setTileLoadedFlag(flag: boolean) {
         this.tileLoaded = flag;
     }
@@ -819,6 +875,18 @@ class Painter {
             canvasCopies: this.frameCopies,
             timeStamps: this.loadTimeStamps
         };
+    }
+
+    averageElevationNeedsEasing() {
+        if (!this.transform._elevation) return false;
+
+        const fog = this.style && this.style.fog;
+        if (!fog) return false;
+
+        const fogOpacity = fog.getOpacity(this.transform.pitch);
+        if (fogOpacity === 0) return false;
+
+        return true;
     }
 }
 

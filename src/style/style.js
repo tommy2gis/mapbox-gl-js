@@ -2,45 +2,46 @@
 
 import assert from 'assert';
 
-import {Event, ErrorEvent, Evented} from '../util/evented';
-import StyleLayer from './style_layer';
-import createStyleLayer from './create_style_layer';
-import loadSprite from './load_sprite';
-import ImageManager from '../render/image_manager';
-import GlyphManager, {LocalGlyphMode} from '../render/glyph_manager';
-import Light from './light';
-import Terrain from './terrain';
-import LineAtlas from '../render/line_atlas';
-import {pick, clone, extend, deepEqual, filterObject} from '../util/util';
-import {getJSON, getReferrer, makeRequest, ResourceType} from '../util/ajax';
-import {isMapboxURL} from '../util/mapbox';
-import browser from '../util/browser';
-import Dispatcher from '../util/dispatcher';
-import {validateStyle, emitValidationErrors as _emitValidationErrors} from './validate_style';
-import {QueryGeometry} from '../style/query_geometry';
+import {Event, ErrorEvent, Evented} from '../util/evented.js';
+import StyleLayer from './style_layer.js';
+import createStyleLayer from './create_style_layer.js';
+import loadSprite from './load_sprite.js';
+import ImageManager from '../render/image_manager.js';
+import GlyphManager, {LocalGlyphMode} from '../render/glyph_manager.js';
+import Light from './light.js';
+import Terrain from './terrain.js';
+import Fog from './fog.js';
+import LineAtlas from '../render/line_atlas.js';
+import {pick, clone, extend, deepEqual, filterObject} from '../util/util.js';
+import {getJSON, getReferrer, makeRequest, ResourceType} from '../util/ajax.js';
+import {isMapboxURL} from '../util/mapbox.js';
+import browser from '../util/browser.js';
+import Dispatcher from '../util/dispatcher.js';
+import {validateStyle, emitValidationErrors as _emitValidationErrors} from './validate_style.js';
+import {QueryGeometry} from '../style/query_geometry.js';
 import {
     create as createSource,
     getType as getSourceType,
     setType as setSourceType,
     type SourceClass
-} from '../source/source';
-import {queryRenderedFeatures, queryRenderedSymbols, querySourceFeatures} from '../source/query_features';
-import SourceCache from '../source/source_cache';
-import GeoJSONSource from '../source/geojson_source';
-import styleSpec from '../style-spec/reference/latest';
-import getWorkerPool from '../util/global_worker_pool';
-import deref from '../style-spec/deref';
-import emptyStyle from '../style-spec/empty';
-import diffStyles, {operations as diffOperations} from '../style-spec/diff';
+} from '../source/source.js';
+import {queryRenderedFeatures, queryRenderedSymbols, querySourceFeatures} from '../source/query_features.js';
+import SourceCache from '../source/source_cache.js';
+import GeoJSONSource from '../source/geojson_source.js';
+import styleSpec from '../style-spec/reference/latest.js';
+import getWorkerPool from '../util/global_worker_pool.js';
+import deref from '../style-spec/deref.js';
+import emptyStyle from '../style-spec/empty.js';
+import diffStyles, {operations as diffOperations} from '../style-spec/diff.js';
 import {
     registerForPluginStateChange,
     evented as rtlTextPluginEvented,
     triggerPluginCompletionEvent
-} from '../source/rtl_text_plugin';
-import PauseablePlacement from './pauseable_placement';
-import ZoomHistory from './zoom_history';
-import CrossTileSymbolIndex from '../symbol/cross_tile_symbol_index';
-import {validateCustomStyleLayer} from './style_layer/custom_style_layer';
+} from '../source/rtl_text_plugin.js';
+import PauseablePlacement from './pauseable_placement.js';
+import ZoomHistory from './zoom_history.js';
+import CrossTileSymbolIndex from '../symbol/cross_tile_symbol_index.js';
+import {validateCustomStyleLayer} from './style_layer/custom_style_layer.js';
 
 // We're skipping validation errors with the `source.canvas` identifier in order
 // to continue to allow canvas sources to be added at runtime/updated in
@@ -48,15 +49,15 @@ import {validateCustomStyleLayer} from './style_layer/custom_style_layer';
 const emitValidationErrors = (evented: Evented, errors: ?$ReadOnlyArray<{message: string, identifier?: string}>) =>
     _emitValidationErrors(evented, errors && errors.filter(error => error.identifier !== 'source.canvas'));
 
-import type Map from '../ui/map';
-import type Transform from '../geo/transform';
-import type {StyleImage} from './style_image';
-import type {StyleGlyph} from './style_glyph';
-import type {Callback} from '../types/callback';
-import type EvaluationParameters from './evaluation_parameters';
-import type {Placement} from '../symbol/placement';
-import type {Cancelable} from '../types/cancelable';
-import type {RequestParameters, ResponseCallback} from '../util/ajax';
+import type Map from '../ui/map.js';
+import type Transform from '../geo/transform.js';
+import type {StyleImage} from './style_image.js';
+import type {StyleGlyph} from './style_glyph.js';
+import type {Callback} from '../types/callback.js';
+import type EvaluationParameters from './evaluation_parameters.js';
+import type {Placement} from '../symbol/placement.js';
+import type {Cancelable} from '../types/cancelable.js';
+import type {RequestParameters, ResponseCallback} from '../util/ajax.js';
 import type {GeoJSON} from '@mapbox/geojson-types';
 import type {
     LayerSpecification,
@@ -64,11 +65,12 @@ import type {
     StyleSpecification,
     LightSpecification,
     SourceSpecification,
-    TerrainSpecification
-} from '../style-spec/types';
-import type {CustomLayerInterface} from './style_layer/custom_style_layer';
-import type {Validator} from './validate_style';
-import type {OverscaledTileID} from '../source/tile_id';
+    TerrainSpecification,
+    FogSpecification
+} from '../style-spec/types.js';
+import type {CustomLayerInterface} from './style_layer/custom_style_layer.js';
+import type {Validator} from './validate_style.js';
+import type {OverscaledTileID} from '../source/tile_id.js';
 import type {PointLike} from '@mapbox/point-geometry';
 
 const supportedDiffOperations = pick(diffOperations, [
@@ -83,7 +85,8 @@ const supportedDiffOperations = pick(diffOperations, [
     'setLight',
     'setTransition',
     'setGeoJSONSourceData',
-    'setTerrain'
+    'setTerrain',
+    'setFog'
     // 'setGlyphs',
     // 'setSprite',
 ]);
@@ -122,6 +125,7 @@ class Style extends Evented {
     lineAtlas: LineAtlas;
     light: Light;
     terrain: ?Terrain;
+    fog: ?Fog;
 
     _request: ?Cancelable;
     _spriteRequest: ?Cancelable;
@@ -146,6 +150,7 @@ class Style extends Evented {
     _updatedPaintProps: {[layer: string]: true};
     _layerOrderChanged: boolean;
     _availableImages: Array<string>;
+    _markersNeedUpdate: boolean;
 
     crossTileSymbolIndex: CrossTileSymbolIndex;
     pauseablePlacement: PauseablePlacement;
@@ -185,6 +190,7 @@ class Style extends Evented {
         this._availableImages = [];
         this._order  = [];
         this._drapedFirstOrder = [];
+        this._markersNeedUpdate = false;
 
         this._resetUpdates();
 
@@ -322,6 +328,9 @@ class Style extends Evented {
         if (this.stylesheet.terrain) {
             this._createTerrain(this.stylesheet.terrain);
         }
+        if (this.stylesheet.fog) {
+            this._createFog(this.stylesheet.fog);
+        }
         this._updateDrapeFirstLayers();
 
         this.fire(new Event('data', {dataType: 'style'}));
@@ -400,6 +409,10 @@ class Style extends Evented {
             return true;
         }
 
+        if (this.fog && this.fog.hasTransition()) {
+            return true;
+        }
+
         for (const id in this._sourceCaches) {
             if (this._sourceCaches[id].hasTransition()) {
                 return true;
@@ -468,6 +481,9 @@ class Style extends Evented {
             }
 
             this.light.updateTransitions(parameters);
+            if (this.fog) {
+                this.fog.updateTransitions(parameters);
+            }
 
             this._resetUpdates();
         }
@@ -513,7 +529,15 @@ class Style extends Evented {
         if (this.terrain) {
             this.terrain.recalculate(parameters);
         }
+        if (this.fog) {
+            this.fog.recalculate(parameters);
+        }
         this.z = parameters.zoom;
+
+        if (this._markersNeedUpdate) {
+            this._updateMarkersOpacity();
+            this._markersNeedUpdate = false;
+        }
 
         if (changed) {
             this.fire(new Event('data', {dataType: 'style'}));
@@ -1146,6 +1170,7 @@ class Style extends Evented {
             metadata: this.stylesheet.metadata,
             light: this.stylesheet.light,
             terrain: this.stylesheet.terrain,
+            fog: this.stylesheet.fog,
             center: this.stylesheet.center,
             zoom: this.stylesheet.zoom,
             bearing: this.stylesheet.bearing,
@@ -1365,6 +1390,10 @@ class Style extends Evented {
         this.light.updateTransitions(parameters);
     }
 
+    getTerrain() {
+        return this.terrain ? this.terrain.get() : null;
+    }
+
     // eslint-disable-next-line no-warning-comments
     // TODO: generic approach for root level property: light, terrain, skybox.
     // It is not done here to prevent rebasing issues.
@@ -1377,6 +1406,7 @@ class Style extends Evented {
             delete this.stylesheet.terrain;
             this.dispatcher.broadcast('enableTerrain', false);
             this._force3DLayerUpdate();
+            this._markersNeedUpdate = true;
             return;
         }
 
@@ -1413,6 +1443,73 @@ class Style extends Evented {
         }
 
         this._updateDrapeFirstLayers();
+        this._markersNeedUpdate = true;
+    }
+
+    _createFog(fogOptions: FogSpecification) {
+        const fog = this.fog = new Fog(fogOptions);
+        this.stylesheet.fog = fogOptions;
+        const parameters = {
+            now: browser.now(),
+            transition: extend({
+                duration: 0
+            }, this.stylesheet.transition)
+        };
+
+        fog.updateTransitions(parameters);
+    }
+
+    _updateMarkersOpacity() {
+        if (this.map._markers.length === 0) {
+            return;
+        }
+        this.map._requestDomTask(() => {
+            for (const marker of this.map._markers) {
+                marker._evaluateOpacity();
+            }
+        });
+    }
+
+    getFog() {
+        return this.fog ? this.fog.get() : null;
+    }
+
+    setFog(fogOptions: FogSpecification) {
+        this._checkLoaded();
+
+        if (!fogOptions) {
+            // Remove fog
+            delete this.fog;
+            delete this.stylesheet.fog;
+            this._markersNeedUpdate = true;
+            return;
+        }
+
+        if (!this.fog) {
+            // Initialize Fog
+            this._createFog(fogOptions);
+        } else {
+            // Updating fog
+            const fog = this.fog;
+            const currSpec = fog.get();
+            for (const key in fogOptions) {
+                if (!deepEqual(fogOptions[key], currSpec[key])) {
+                    fog.set(fogOptions);
+                    this.stylesheet.fog = fogOptions;
+                    const parameters = {
+                        now: browser.now(),
+                        transition: extend({
+                            duration: 0
+                        }, this.stylesheet.transition)
+                    };
+
+                    fog.updateTransitions(parameters);
+                    break;
+                }
+            }
+        }
+
+        this._markersNeedUpdate = true;
     }
 
     _updateDrapeFirstLayers() {
@@ -1556,7 +1653,7 @@ class Style extends Evented {
         }
 
         if (forceFullPlacement || !this.pauseablePlacement || (this.pauseablePlacement.isDone() && !this.placement.stillRecent(browser.now(), transform.zoom))) {
-            this.pauseablePlacement = new PauseablePlacement(transform, this._order, forceFullPlacement, showCollisionBoxes, fadeDuration, crossSourceCollisions, this.placement);
+            this.pauseablePlacement = new PauseablePlacement(transform, this._order, forceFullPlacement, showCollisionBoxes, fadeDuration, crossSourceCollisions, this.placement, this.fog ? this.fog.state : null);
             this._layerOrderChanged = false;
         }
 
