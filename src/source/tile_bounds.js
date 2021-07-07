@@ -10,12 +10,10 @@ class TileBounds {
     minzoom: number;
     maxzoom: number;
 
-    constructor(bounds: [number, number, number, number], minzoom: ?number, maxzoom: ?number,crs: ?string) {
+    constructor(bounds: [number, number, number, number], minzoom: ?number, maxzoom: ?number) {
         this.bounds = LngLatBounds.convert(this.validateBounds(bounds));
         this.minzoom = minzoom || 0;
         this.maxzoom = maxzoom || 24;
-        this.crs = crs || 'EPSG:3857';
-        console.log('TileBounds:'+this.crs);
     }
 
     validateBounds(bounds: [number, number, number, number]) {
@@ -28,9 +26,9 @@ class TileBounds {
         const worldSize = Math.pow(2, tileID.z);
         const level = {
             minX: Math.floor(mercatorXfromLng(this.bounds.getWest()) * worldSize),
-            minY: Math.floor((this.crs==='EPSG:4490'?mercatorYfrom2000Lat(this.bounds.getNorth()):mercatorYfromLat(this.bounds.getNorth())) * worldSize),
+            minY: Math.floor(mercatorYfromLat(this.bounds.getNorth()) * worldSize),
             maxX: Math.ceil(mercatorXfromLng(this.bounds.getEast()) * worldSize),
-            maxY: Math.ceil((this.crs==='EPSG:4490'?mercatorYfrom2000Lat(this.bounds.getSouth()) :mercatorYfromLat(this.bounds.getSouth())) * worldSize)
+            maxY: Math.ceil(mercatorYfromLat(this.bounds.getSouth()) * worldSize)
         };
         const hit = tileID.x >= level.minX && tileID.x < level.maxX && tileID.y >= level.minY && tileID.y < level.maxY;
         return hit;

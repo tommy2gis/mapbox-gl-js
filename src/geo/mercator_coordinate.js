@@ -21,10 +21,6 @@ export function mercatorXfromLng(lng: number) {
 }
 
 export function mercatorYfromLat(lat: number) {
-    return (180 - (180 / Math.PI * Math.log(Math.tan(Math.PI / 4 + lat * Math.PI / 360)))) / 360;
-}
-
-export function mercatorYfrom2000Lat(lat: number) {
     return (90 - lat) / 360;
 }
 
@@ -36,13 +32,8 @@ export function lngFromMercatorX(x: number) {
     return x * 360 - 180;
 }
 
-export function latFromMercator2000Y(y: number) {
-    return clamp(90 - y * 360, -90, 90);
-}
-
 export function latFromMercatorY(y: number) {
-    const y2 = 180 - y * 360;
-    return 360 / Math.PI * Math.atan(Math.exp(y2 * Math.PI / 180)) - 90;
+    return clamp(90 - y * 360, -90, 90);
 }
 
 export function altitudeFromMercatorZ(z: number, y: number) {
@@ -115,15 +106,6 @@ class MercatorCoordinate {
                 mercatorZfromAltitude(altitude, lngLat.lat));
     }
 
-    static from2000LngLat(lngLatLike: LngLatLike, altitude: number = 0) {
-        const lngLat = LngLat.convert(lngLatLike);
-
-        return new MercatorCoordinate(
-                mercatorXfromLng(lngLat.lng),
-                mercatorYfrom2000Lat(lngLat.lat),
-                mercatorZfromAltitude(altitude, lngLat.lat));
-    }
-
     /**
      * Returns the `LngLat` for the coordinate.
      *
@@ -132,10 +114,10 @@ class MercatorCoordinate {
      * var coord = new mapboxgl.MercatorCoordinate(0.5, 0.5, 0);
      * var lngLat = coord.toLngLat(); // LngLat(0, 0)
      */
-     toLngLat(crs: ?string) {
+    toLngLat() {
         return new LngLat(
                 lngFromMercatorX(this.x),
-                crs==='EPSG:4490'?latFromMercator2000Y(this.y):latFromMercatorY(this.y));
+                latFromMercatorY(this.y));
     }
 
     /**

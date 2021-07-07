@@ -30,8 +30,8 @@ export class CanonicalTileID {
     }
 
     // given a list of urls, choose a url template and return a tile URL
-    url(urls: Array<string>, scheme: ?string, zoomOffset: ?number, crs: ?string) {
-        const bbox = getTileBBox(this.x, this.y, this.z,crs);
+    url(urls: Array<string>, scheme: ?string, zoomOffset: ?number) {
+        const bbox = getTileBBox(this.x, this.y, this.z);
         const quadkey = getQuadkey(this.z, this.x, this.y);
 
         return urls[(this.x + this.y) % urls.length]
@@ -40,7 +40,7 @@ export class CanonicalTileID {
             .replace('{x}', String(this.x))
             .replace('{y}', String(scheme === 'tms' ? (this.z === 0 ? 0 : (Math.pow(2, this.z - 1) - 1 - this.y)) : this.y))
             .replace('{quadkey}', quadkey)
-            .replace(crs?'{bbox-epsg-4490}':'{bbox-epsg-3857}', bbox);
+            .replace('{bbox-epsg-4490}', bbox);
     }
 
     getTilePoint(coord: MercatorCoordinate) {
