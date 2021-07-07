@@ -8,7 +8,7 @@ import EXTENT from './extent.js';
 import featureFilter from '../style-spec/feature_filter/index.js';
 import Grid from 'grid-index';
 import DictionaryCoder from '../util/dictionary_coder';
-import vt from '@cgcs2000/vector-tile';
+import vt from '@tommy2gis/swsk-vector-tile';
 import Protobuf from 'pbf';
 import GeoJSONFeature from '../util/vectortile_to_geojson.js';
 import {arraysIntersect, mapObject, extend} from '../util/util.js';

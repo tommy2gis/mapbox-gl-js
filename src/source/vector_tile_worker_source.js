@@ -2,7 +2,7 @@
 
 import {getArrayBuffer} from '../util/ajax.js';
 
-import vt from '@cgcs2000/vector-tile';
+import vt from '@tommy2gis/swsk-vector-tile';
 import Protobuf from 'pbf';
 import WorkerTile from './worker_tile.js';
 import {extend} from '../util/util.js';

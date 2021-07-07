@@ -84,6 +84,7 @@ const AVERAGE_ELEVATION_CHANGE_THRESHOLD = 1e-4; // meters
 type MapOptions = {
     hash?: boolean | string,
     interactive?: boolean,
+    crs:string,
     container: HTMLElement | string,
     bearingSnap?: number,
     attributionControl?: boolean,
@@ -132,6 +133,7 @@ const defaultOptions = {
     zoom: 0,
     bearing: 0,
     pitch: 0,
+    crs:'EPSG:3857',
 
     minZoom: defaultMinZoom,
     maxZoom: defaultMaxZoom,
@@ -414,9 +416,9 @@ class Map extends Camera {
             throw new Error(`maxPitch must be less than or equal to ${defaultMaxPitch}`);
         }
 
-        const transform = new Transform(options.minZoom, options.maxZoom, options.minPitch, options.maxPitch, options.renderWorldCopies);
+        const transform = new Transform(options.minZoom, options.maxZoom, options.minPitch, options.maxPitch, options.renderWorldCopies,options.crs);
         super(transform, options);
-
+        this._crs = options.crs;
         this._interactive = options.interactive;
         this._maxTileCacheSize = options.maxTileCacheSize;
         this._failIfMajorPerformanceCaveat = options.failIfMajorPerformanceCaveat;
@@ -2791,7 +2793,7 @@ class Map extends Camera {
         if (this._loaded && !this._fullyLoaded && !somethingDirty) {
             this._fullyLoaded = true;
             // Following line is billing related code. Do not change. See LICENSE.txt
-            this._authenticate();
+           // this._authenticate();
             PerformanceUtils.mark(PerformanceMarkers.fullLoad);
         }
 

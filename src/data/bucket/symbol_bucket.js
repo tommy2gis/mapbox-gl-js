@@ -31,7 +31,7 @@ import {allowsVerticalWritingMode, stringContainsRTLText} from '../../util/scrip
 import {WritingMode} from '../../symbol/shaping.js';
 import loadGeometry from '../load_geometry.js';
 import toEvaluationFeature from '../evaluation_feature.js';
-import mvt from '@cgcs2000/vector-tile';
+import mvt from '@tommy2gis/swsk-vector-tile';
 const vectorTileFeatureTypes = mvt.VectorTileFeature.types;
 import {verticalizedCharacterMap} from '../../util/verticalize_punctuation.js';
 import Anchor from '../../symbol/anchor.js';

@@ -8,7 +8,7 @@ import SegmentVector from '../segment.js';
 import {ProgramConfigurationSet} from '../program_configuration.js';
 import {TriangleIndexArray} from '../index_array_type.js';
 import EXTENT from '../extent.js';
-import mvt from '@cgcs2000/vector-tile';
+import mvt from '@tommy2gis/swsk-vector-tile';
 const vectorTileFeatureTypes = mvt.VectorTileFeature.types;
 import {register} from '../../util/web_worker_transfer.js';
 import {hasPattern, addPatternDependencies} from './pattern_bucket_features.js';

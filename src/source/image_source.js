@@ -156,7 +156,8 @@ class ImageSource extends Evented implements Source {
 
     _finishLoading() {
         if (this.map) {
-            this.setCoordinates(this.coordinates);
+            console.log('ImageSource:'+this.map._crs);
+            this.setCoordinates(this.coordinates,this.map._crs);
             this.fire(new Event('data', {dataType: 'source', sourceDataType: 'metadata'}));
         }
     }
@@ -175,15 +176,15 @@ class ImageSource extends Evented implements Source {
      *   They do not have to represent a rectangle.
      * @returns {ImageSource} this
      */
-    setCoordinates(coordinates: Coordinates) {
+    setCoordinates(coordinates: Coordinates,crs:string) {
         this.coordinates = coordinates;
-
+        console.log('ImageSource:'+crs);
         // Calculate which mercator tile is suitable for rendering the video in
         // and create a buffer with the corner coordinates. These coordinates
         // may be outside the tile, because raster tiles aren't clipped when rendering.
 
         // transform the geo coordinates into (zoom 0) tile space coordinates
-        const cornerCoords = coordinates.map(MercatorCoordinate.fromLngLat);
+        const cornerCoords = crs==='EPSG:4490'?coordinates.map(MercatorCoordinate.from2000LngLat):coordinates.map(MercatorCoordinate.fromLngLat);
 
         // Compute the coordinates of the tile we'll use to hold this image's
         // render data
